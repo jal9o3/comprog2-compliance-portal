@@ -115,8 +115,38 @@
                     }
 
                     const cells = matchedRow.split(',');
+                    const columnLabels = [
+                        'Student ID',
+                        'Attendance/GMRC',
+                        'No. of Meetings',
+                        'Rating',
+                        'Lab 1',
+                        'Lab 2',
+                        'Lab 3',
+                        'Average',
+                        'Rating',
+                        'Quiz 1',
+                        'No. of Items',
+                        'Equivalent',
+                        'Quiz 2',
+                        'No. of Items',
+                        'Equivalent',
+                        'Quiz 3',
+                        'No. of Items',
+                        'Equivalent',
+                        'Average',
+                        'Rating',
+                        'Midterm Exam',
+                        'No. of Items',
+                        'Equivalent',
+                        'Rating',
+                        'Raw Midterm',
+                        'Prelim Bearing',
+                        'Transmuted Grade'
+                    ];
+
                     const headers = cells.map(function (_, index) {
-                        return `Column ${index + 1}`;
+                        return columnLabels[index] || `Column ${index + 1}`;
                     });
 
                     const tableHeader = headers
