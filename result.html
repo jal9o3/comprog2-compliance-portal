@@ -1,285 +1,328 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Student Compliance Result</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            min-height: 100vh;
-            background: #f5f5f5;
-            padding: 24px;
-            box-sizing: border-box;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        min-height: 100vh;
+        background: #f5f5f5;
+        padding: 24px;
+        box-sizing: border-box;
+      }
 
-        .card {
-            width: min(980px, 95vw);
-            margin: 0 auto;
-            background: white;
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-        }
+      .card {
+        width: min(980px, 95vw);
+        margin: 0 auto;
+        background: white;
+        padding: 24px;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      }
 
-        h1 {
-            margin-top: 0;
-            font-size: 1.35rem;
-        }
+      h1 {
+        margin-top: 0;
+        font-size: 1.35rem;
+      }
 
-        .muted {
-            color: #555;
-            margin-bottom: 16px;
-        }
+      .muted {
+        color: #555;
+        margin-bottom: 16px;
+      }
 
-        .message {
-            padding: 12px;
-            border-radius: 8px;
-            background: #f0f6ff;
-            border: 1px solid #c2dcff;
-        }
+      .message {
+        padding: 12px;
+        border-radius: 8px;
+        background: #f0f6ff;
+        border: 1px solid #c2dcff;
+      }
 
+      .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 8px;
+      }
+
+      .section-card.grade-card {
+        grid-column: 2 / 4;
+      }
+
+      .section-card {
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 12px;
+        background: #fff;
+      }
+
+      .section-card h2 {
+        margin: 0 0 10px;
+        font-size: 1rem;
+      }
+
+      .kv {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 6px 12px;
+        font-size: 0.92rem;
+      }
+
+      .kv .key {
+        color: #444;
+      }
+
+      .kv .key .hover-indicator {
+        position: relative;
+        display: inline-block;
+        margin-left: 6px;
+        font-size: 0.82rem;
+        color: #1f6feb;
+        vertical-align: middle;
+        cursor: default;
+      }
+
+      .kv .key .hover-indicator::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: calc(100% + 8px);
+        background: #222;
+        color: #fff;
+        padding: 6px 8px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        line-height: 1.2;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.15s ease;
+        z-index: 10;
+      }
+
+      .kv .key .hover-indicator:hover::after {
+        opacity: 1;
+      }
+
+      .kv .value {
+        font-weight: 600;
+      }
+
+      .kv .value.transmuted-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #0b4fb3;
+      }
+
+      @media (max-width: 900px) {
         .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 12px;
-            margin-top: 8px;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
         .section-card.grade-card {
-            grid-column: 2 / 4;
+          grid-column: 1 / -1;
         }
+      }
 
-        .section-card {
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            padding: 12px;
-            background: #fff;
+      @media (max-width: 560px) {
+        .cards-grid {
+          grid-template-columns: 1fr;
         }
+      }
 
-        .section-card h2 {
-            margin: 0 0 10px;
-            font-size: 1rem;
-        }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 8px;
+      }
 
-        .kv {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 6px 12px;
-            font-size: 0.92rem;
-        }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        font-size: 0.92rem;
+        text-align: left;
+        white-space: nowrap;
+      }
 
-        .kv .key {
-            color: #444;
-        }
+      th {
+        background: #f3f3f3;
+      }
 
-        .kv .key .hover-indicator {
-            position: relative;
-            display: inline-block;
-            margin-left: 6px;
-            font-size: 0.82rem;
-            color: #1f6feb;
-            vertical-align: middle;
-            cursor: default;
-        }
+      .table-wrap {
+        overflow-x: auto;
+      }
 
-        .kv .key .hover-indicator::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            bottom: calc(100% + 8px);
-            background: #222;
-            color: #fff;
-            padding: 6px 8px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            line-height: 1.2;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.15s ease;
-            z-index: 10;
-        }
+      .disclaimer {
+        margin-top: 14px;
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1px solid #e1e1e1;
+        background: #fafafa;
+        color: #555;
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
 
-        .kv .key .hover-indicator:hover::after {
-            opacity: 1;
-        }
+      .disclaimer strong {
+        color: #333;
+      }
 
-        .kv .value {
-            font-weight: 600;
-        }
-
-        .kv .value.transmuted-value {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #0b4fb3;
-        }
-
-        @media (max-width: 900px) {
-            .cards-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-
-            .section-card.grade-card {
-                grid-column: 1 / -1;
-            }
-        }
-
-        @media (max-width: 560px) {
-            .cards-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 8px;
-        }
-
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            font-size: 0.92rem;
-            text-align: left;
-            white-space: nowrap;
-        }
-
-        th {
-            background: #f3f3f3;
-        }
-
-        .table-wrap {
-            overflow-x: auto;
-        }
-
-        a {
-            display: inline-block;
-            margin-top: 16px;
-            color: #1f6feb;
-            text-decoration: none;
-        }
+      a {
+        display: inline-block;
+        margin-top: 16px;
+        color: #1f6feb;
+        text-decoration: none;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <main class="card">
-        <h1>Compliance Row Result</h1>
-        <div id="meta" class="muted"></div>
-        <div id="output" class="message">Loading...</div>
-        <a href="index.html">← Back</a>
+      <h1>Midterm Compliance - Computer Programming 2</h1>
+      <div id="meta" class="muted"></div>
+      <div id="output" class="message">Loading...</div>
+      <a href="index.html">← Back</a>
+      <p class="disclaimer">
+        <strong>Last updated:</strong> March 6, 2026 03:30 PM<br />
+        <b>Reminder:</b> Sabihin agad kay Sir kapag nakapagcomply na sa inyong missing requirements. Thank you!
+      </p>
     </main>
 
     <script>
-        const params = new URLSearchParams(window.location.search);
-        const studentId = (params.get('id') || '').trim();
-        const meta = document.getElementById('meta');
-        const output = document.getElementById('output');
+      const params = new URLSearchParams(window.location.search);
+      const studentId = (params.get("id") || "").trim();
+      const meta = document.getElementById("meta");
+      const output = document.getElementById("output");
 
-        if (!studentId) {
-            meta.textContent = 'No student ID provided.';
-            output.textContent = 'Please go back and enter a valid student ID.';
-        } else {
-            meta.textContent = `Student ID: ${studentId}`;
-            fetch('midterm_compliance.csv')
-                .then(function (response) {
-                    if (!response.ok) {
-                        throw new Error('Could not load CSV file.');
-                    }
-                    return response.text();
-                })
-                .then(function (csvText) {
-                    const rows = csvText
-                        .split(/\r?\n/)
-                        .map(function (line) {
-                            return line.trim();
-                        })
-                        .filter(Boolean);
+      if (!studentId) {
+        meta.textContent = "No student ID provided.";
+        output.textContent = "Please go back and enter a valid student ID.";
+      } else {
+        meta.textContent = `Student ID: ${studentId}`;
+        fetch("midterm_compliance.csv")
+          .then(function (response) {
+            if (!response.ok) {
+              throw new Error("Could not load CSV file.");
+            }
+            return response.text();
+          })
+          .then(function (csvText) {
+            const rows = csvText
+              .split(/\r?\n/)
+              .map(function (line) {
+                return line.trim();
+              })
+              .filter(Boolean);
 
-                    const matchedRow = rows.find(function (line) {
-                        return line.split(',')[0] === studentId;
-                    });
+            const matchedRow = rows.find(function (line) {
+              return line.split(",")[0] === studentId;
+            });
 
-                    if (!matchedRow) {
-                        output.textContent = 'No record found for this student ID.';
-                        return;
-                    }
+            if (!matchedRow) {
+              output.textContent = "No record found for this student ID.";
+              return;
+            }
 
-                    const cells = matchedRow.split(',');
-                    const getValue = function (index) {
-                        return (cells[index - 1] || '').trim();
-                    };
+            const cells = matchedRow.split(",");
+            const getValue = function (index) {
+              return (cells[index - 1] || "").trim();
+            };
 
-                    const escapeHtml = function (value) {
-                        return String(value)
-                            .replace(/&/g, '&amp;')
-                            .replace(/</g, '&lt;')
-                            .replace(/>/g, '&gt;')
-                            .replace(/"/g, '&quot;')
-                            .replace(/'/g, '&#39;');
-                    };
+            const escapeHtml = function (value) {
+              return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+            };
 
-                    const roundPercentages = function (value) {
-                        return String(value).replace(/(-?\d+(?:\.\d+)?)%/g, function (_, numPart) {
-                            const rounded = Math.round(Number(numPart));
-                            return `${rounded}%`;
-                        });
-                    };
+            const roundPercentages = function (value) {
+              return String(value).replace(
+                /(-?\d+(?:\.\d+)?)%/g,
+                function (_, numPart) {
+                  const rounded = Math.round(Number(numPart));
+                  return `${rounded}%`;
+                },
+              );
+            };
 
-                    const createRow = function (label, value, keyTitle, valueClass) {
-                        const classAttr = valueClass ? ` ${escapeHtml(valueClass)}` : '';
-                        const indicator = keyTitle
-                            ? `<span class="hover-indicator" data-tooltip="${escapeHtml(keyTitle)}" aria-label="${escapeHtml(keyTitle)}">ⓘ</span>`
-                            : '';
-                        const displayValue = roundPercentages(value);
-                        return `<div class="key">${escapeHtml(label)}${indicator}</div><div class="value${classAttr}">${escapeHtml(displayValue)}</div>`;
-                    };
+            const createRow = function (label, value, keyTitle, valueClass) {
+              const classAttr = valueClass ? ` ${escapeHtml(valueClass)}` : "";
+              const indicator = keyTitle
+                ? `<span class="hover-indicator" data-tooltip="${escapeHtml(keyTitle)}" aria-label="${escapeHtml(keyTitle)}">ⓘ</span>`
+                : "";
+              const displayValue = roundPercentages(value);
+              return `<div class="key">${escapeHtml(label)}${indicator}</div><div class="value${classAttr}">${escapeHtml(displayValue)}</div>`;
+            };
 
-                    const formatOutOf = function (score, total, equivalent) {
-                        const scoreText = score || '0';
-                        const totalText = total || '0';
-                        if (!equivalent) {
-                            return `${scoreText} out of ${totalText}`;
-                        }
-                        return `${scoreText} out of ${totalText} (${equivalent})`;
-                    };
+            const formatOutOf = function (score, total, equivalent) {
+              const scoreText = score || "0";
+              const totalText = total || "0";
+              if (!equivalent) {
+                return `${scoreText} out of ${totalText}`;
+              }
+              return `${scoreText} out of ${totalText} (${equivalent})`;
+            };
 
-                    const attendanceRows = [
-                        createRow('Points', formatOutOf(getValue(2), getValue(3))),
-                        createRow('Rating', getValue(4))
-                    ].join('');
+            const attendanceRows = [
+              createRow("Points", formatOutOf(getValue(2), getValue(3))),
+              createRow("Rating", getValue(4)),
+            ].join("");
 
-                    const laboratoryRows = [
-                        createRow('Tuple', getValue(5)),
-                        createRow('Set', getValue(6)),
-                        createRow('Regex', getValue(7)),
-                        createRow('Average', getValue(8)),
-                        createRow('Rating', getValue(9))
-                    ].join('');
+            const laboratoryRows = [
+              createRow("Tuple", getValue(5)),
+              createRow("Set", getValue(6)),
+              createRow("Regex", getValue(7)),
+              createRow("Average", getValue(8)),
+              createRow("Rating", getValue(9)),
+            ].join("");
 
-                    const quizzesRows = [
-                        createRow('Tuple', formatOutOf(getValue(10), getValue(11), getValue(12))),
-                        createRow('Set', formatOutOf(getValue(13), getValue(14), getValue(15))),
-                        createRow('Regex', formatOutOf(getValue(16), getValue(17), getValue(18))),
-                        createRow('Average', getValue(19)),
-                        createRow('Rating', getValue(20))
-                    ].join('');
+            const quizzesRows = [
+              createRow(
+                "Tuple",
+                formatOutOf(getValue(10), getValue(11), getValue(12)),
+              ),
+              createRow(
+                "Set",
+                formatOutOf(getValue(13), getValue(14), getValue(15)),
+              ),
+              createRow(
+                "Regex",
+                formatOutOf(getValue(16), getValue(17), getValue(18)),
+              ),
+              createRow("Average", getValue(19)),
+              createRow("Rating", getValue(20)),
+            ].join("");
 
-                    const examRows = [
-                        createRow('Score', formatOutOf(getValue(21), getValue(22), getValue(23))),
-                        createRow('Rating', getValue(24))
-                    ].join('');
+            const examRows = [
+              createRow(
+                "Score",
+                formatOutOf(getValue(21), getValue(22), getValue(23)),
+              ),
+              createRow("Rating", getValue(24)),
+            ].join("");
 
-                    const gradeCalculationRows = [
-                        createRow('Raw Midterm', getValue(25)),
-                        createRow('Prelim Bearing', getValue(26), '(70% of Raw Midterm + 30% of Prelim Rating)'),
-                        createRow('Transmuted Grade', getValue(27), '', 'transmuted-value')
-                    ].join('');
+            const gradeCalculationRows = [
+              createRow("Raw Midterm", getValue(25)),
+              createRow(
+                "Prelim Bearing",
+                getValue(26),
+                "(70% of Raw Midterm + 30% of Prelim Rating)",
+              ),
+              createRow(
+                "Transmuted Grade",
+                getValue(27),
+                "",
+                "transmuted-value",
+              ),
+            ].join("");
 
-                    output.className = '';
-                    output.innerHTML = `
+            output.className = "";
+            output.innerHTML = `
                         <div class="cards-grid">
                             <section class="section-card">
                                 <h2>Attendance</h2>
@@ -303,11 +346,11 @@
                             </section>
                         </div>
                     `;
-                })
-                .catch(function (error) {
-                    output.textContent = `${error.message} If you're opening this directly as a file, run this using a local web server.`;
-                });
-        }
+          })
+          .catch(function (error) {
+            output.textContent = `${error.message} If you're opening this directly as a file, run this using a local web server.`;
+          });
+      }
     </script>
-</body>
+  </body>
 </html>
