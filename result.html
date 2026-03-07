@@ -221,12 +221,20 @@
                             .replace(/'/g, '&#39;');
                     };
 
+                    const roundPercentages = function (value) {
+                        return String(value).replace(/(-?\d+(?:\.\d+)?)%/g, function (_, numPart) {
+                            const rounded = Math.round(Number(numPart));
+                            return `${rounded}%`;
+                        });
+                    };
+
                     const createRow = function (label, value, keyTitle, valueClass) {
                         const classAttr = valueClass ? ` ${escapeHtml(valueClass)}` : '';
                         const indicator = keyTitle
                             ? `<span class="hover-indicator" data-tooltip="${escapeHtml(keyTitle)}" aria-label="${escapeHtml(keyTitle)}">ⓘ</span>`
                             : '';
-                        return `<div class="key">${escapeHtml(label)}${indicator}</div><div class="value${classAttr}">${escapeHtml(value)}</div>`;
+                        const displayValue = roundPercentages(value);
+                        return `<div class="key">${escapeHtml(label)}${indicator}</div><div class="value${classAttr}">${escapeHtml(displayValue)}</div>`;
                     };
 
                     const formatOutOf = function (score, total, equivalent) {
@@ -239,28 +247,28 @@
                     };
 
                     const attendanceRows = [
-                        createRow('Attendance/GMRC', formatOutOf(getValue(2), getValue(3))),
+                        createRow('Points', formatOutOf(getValue(2), getValue(3))),
                         createRow('Rating', getValue(4))
                     ].join('');
 
                     const laboratoryRows = [
-                        createRow('Lab 1', getValue(5)),
-                        createRow('Lab 2', getValue(6)),
-                        createRow('Lab 3', getValue(7)),
+                        createRow('Tuple', getValue(5)),
+                        createRow('Set', getValue(6)),
+                        createRow('Regex', getValue(7)),
                         createRow('Average', getValue(8)),
                         createRow('Rating', getValue(9))
                     ].join('');
 
                     const quizzesRows = [
-                        createRow('Quiz 1', formatOutOf(getValue(10), getValue(11), getValue(12))),
-                        createRow('Quiz 2', formatOutOf(getValue(13), getValue(14), getValue(15))),
-                        createRow('Quiz 3', formatOutOf(getValue(16), getValue(17), getValue(18))),
+                        createRow('Tuple', formatOutOf(getValue(10), getValue(11), getValue(12))),
+                        createRow('Set', formatOutOf(getValue(13), getValue(14), getValue(15))),
+                        createRow('Regex', formatOutOf(getValue(16), getValue(17), getValue(18))),
                         createRow('Average', getValue(19)),
                         createRow('Rating', getValue(20))
                     ].join('');
 
                     const examRows = [
-                        createRow('Midterm Exam', formatOutOf(getValue(21), getValue(22), getValue(23))),
+                        createRow('Score', formatOutOf(getValue(21), getValue(22), getValue(23))),
                         createRow('Rating', getValue(24))
                     ].join('');
 
