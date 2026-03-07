@@ -194,6 +194,7 @@
     <script>
       const params = new URLSearchParams(window.location.search);
       const studentId = (params.get("id") || "").trim();
+      const normalizedStudentId = studentId.toLowerCase();
       const meta = document.getElementById("meta");
       const output = document.getElementById("output");
 
@@ -218,7 +219,7 @@
               .filter(Boolean);
 
             const matchedRow = rows.find(function (line) {
-              return line.split(",")[0] === studentId;
+              return line.split(",")[0].trim().toLowerCase() === normalizedStudentId;
             });
 
             if (!matchedRow) {
