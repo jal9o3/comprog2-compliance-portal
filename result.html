@@ -42,9 +42,13 @@
 
         .cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 12px;
             margin-top: 8px;
+        }
+
+        .section-card.grade-card {
+            grid-column: 2 / 4;
         }
 
         .section-card {
@@ -70,8 +74,63 @@
             color: #444;
         }
 
+        .kv .key .hover-indicator {
+            position: relative;
+            display: inline-block;
+            margin-left: 6px;
+            font-size: 0.82rem;
+            color: #1f6feb;
+            vertical-align: middle;
+            cursor: default;
+        }
+
+        .kv .key .hover-indicator::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: calc(100% + 8px);
+            background: #222;
+            color: #fff;
+            padding: 6px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            line-height: 1.2;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s ease;
+            z-index: 10;
+        }
+
+        .kv .key .hover-indicator:hover::after {
+            opacity: 1;
+        }
+
         .kv .value {
             font-weight: 600;
+        }
+
+        .kv .value.transmuted-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #0b4fb3;
+        }
+
+        @media (max-width: 900px) {
+            .cards-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .section-card.grade-card {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         table {
@@ -162,8 +221,12 @@
                             .replace(/'/g, '&#39;');
                     };
 
-                    const createRow = function (label, value) {
-                        return `<div class="key">${escapeHtml(label)}</div><div class="value">${escapeHtml(value)}</div>`;
+                    const createRow = function (label, value, keyTitle, valueClass) {
+                        const classAttr = valueClass ? ` ${escapeHtml(valueClass)}` : '';
+                        const indicator = keyTitle
+                            ? `<span class="hover-indicator" data-tooltip="${escapeHtml(keyTitle)}" aria-label="${escapeHtml(keyTitle)}">ⓘ</span>`
+                            : '';
+                        return `<div class="key">${escapeHtml(label)}${indicator}</div><div class="value${classAttr}">${escapeHtml(value)}</div>`;
                     };
 
                     const formatOutOf = function (score, total, equivalent) {
@@ -203,8 +266,8 @@
 
                     const gradeCalculationRows = [
                         createRow('Raw Midterm', getValue(25)),
-                        createRow('Prelim Bearing', getValue(26)),
-                        createRow('Transmuted Grade', getValue(27))
+                        createRow('Prelim Bearing', getValue(26), '(70% of Raw Midterm + 30% of Prelim Rating)'),
+                        createRow('Transmuted Grade', getValue(27), '', 'transmuted-value')
                     ].join('');
 
                     output.className = '';
@@ -226,7 +289,7 @@
                                 <h2>Exam</h2>
                                 <div class="kv">${examRows}</div>
                             </section>
-                            <section class="section-card">
+                            <section class="section-card grade-card">
                                 <h2>Grade Calculation</h2>
                                 <div class="kv">${gradeCalculationRows}</div>
                             </section>
