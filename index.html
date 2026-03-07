@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprog2 Midterm Compliance Portal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            background: #f5f5f5;
+        }
+
+        .card {
+            width: min(480px, 92vw);
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 1.35rem;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        input {
+            flex: 1;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+        }
+
+        button {
+            padding: 10px 16px;
+            border: 0;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #1f6feb;
+            color: white;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <main class="card">
+        <h1>Midterm Compliance Portal</h1>
+        <form id="check-form">
+            <div class="row">
+                <input id="student-id" type="text" placeholder="Enter Student ID (e.g. C-2025-0472)" required />
+                <button type="submit">Check</button>
+            </div>
+        </form>
+    </main>
+
+    <script>
+        const form = document.getElementById('check-form');
+        const studentIdInput = document.getElementById('student-id');
+
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            const studentId = studentIdInput.value.trim();
+            if (!studentId) {
+                return;
+            }
+            window.location.href = `result.html?id=${encodeURIComponent(studentId)}`;
+        });
+    </script>
+</body>
+</html>

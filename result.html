@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Compliance Result</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            background: #f5f5f5;
+            padding: 24px;
+            box-sizing: border-box;
+        }
+
+        .card {
+            width: min(980px, 95vw);
+            margin: 0 auto;
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 1.35rem;
+        }
+
+        .muted {
+            color: #555;
+            margin-bottom: 16px;
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            background: #f0f6ff;
+            border: 1px solid #c2dcff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            font-size: 0.92rem;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        th {
+            background: #f3f3f3;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 16px;
+            color: #1f6feb;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <main class="card">
+        <h1>Compliance Row Result</h1>
+        <div id="meta" class="muted"></div>
+        <div id="output" class="message">Loading...</div>
+        <a href="index.html">← Back</a>
+    </main>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const studentId = (params.get('id') || '').trim();
+        const meta = document.getElementById('meta');
+        const output = document.getElementById('output');
+
+        if (!studentId) {
+            meta.textContent = 'No student ID provided.';
+            output.textContent = 'Please go back and enter a valid student ID.';
+        } else {
+            meta.textContent = `Student ID: ${studentId}`;
+            fetch('midterm_compliance.csv')
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw new Error('Could not load CSV file.');
+                    }
+                    return response.text();
+                })
+                .then(function (csvText) {
+                    const rows = csvText
+                        .split(/\r?\n/)
+                        .map(function (line) {
+                            return line.trim();
+                        })
+                        .filter(Boolean);
+
+                    const matchedRow = rows.find(function (line) {
+                        return line.split(',')[0] === studentId;
+                    });
+
+                    if (!matchedRow) {
+                        output.textContent = 'No record found for this student ID.';
+                        return;
+                    }
+
+                    const cells = matchedRow.split(',');
+                    const headers = cells.map(function (_, index) {
+                        return `Column ${index + 1}`;
+                    });
+
+                    const tableHeader = headers
+                        .map(function (header) {
+                            return `<th>${header}</th>`;
+                        })
+                        .join('');
+
+                    const tableRow = cells
+                        .map(function (cell) {
+                            return `<td>${cell}</td>`;
+                        })
+                        .join('');
+
+                    output.innerHTML = `
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>${tableHeader}</tr>
+                                </thead>
+                                <tbody>
+                                    <tr>${tableRow}</tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                })
+                .catch(function (error) {
+                    output.textContent = `${error.message} If you're opening this directly as a file, run this using a local web server.`;
+                });
+        }
+    </script>
+</body>
+</html>
