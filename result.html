@@ -40,6 +40,40 @@
             border: 1px solid #c2dcff;
         }
 
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .section-card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 12px;
+            background: #fff;
+        }
+
+        .section-card h2 {
+            margin: 0 0 10px;
+            font-size: 1rem;
+        }
+
+        .kv {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 6px 12px;
+            font-size: 0.92rem;
+        }
+
+        .kv .key {
+            color: #444;
+        }
+
+        .kv .value {
+            font-weight: 600;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -115,62 +149,87 @@
                     }
 
                     const cells = matchedRow.split(',');
-                    const columnLabels = [
-                        'Student ID',
-                        'Attendance/GMRC',
-                        'No. of Meetings',
-                        'Rating',
-                        'Lab 1',
-                        'Lab 2',
-                        'Lab 3',
-                        'Average',
-                        'Rating',
-                        'Quiz 1',
-                        'No. of Items',
-                        'Equivalent',
-                        'Quiz 2',
-                        'No. of Items',
-                        'Equivalent',
-                        'Quiz 3',
-                        'No. of Items',
-                        'Equivalent',
-                        'Average',
-                        'Rating',
-                        'Midterm Exam',
-                        'No. of Items',
-                        'Equivalent',
-                        'Rating',
-                        'Raw Midterm',
-                        'Prelim Bearing',
-                        'Transmuted Grade'
-                    ];
+                    const getValue = function (index) {
+                        return (cells[index - 1] || '').trim();
+                    };
 
-                    const headers = cells.map(function (_, index) {
-                        return columnLabels[index] || `Column ${index + 1}`;
-                    });
+                    const escapeHtml = function (value) {
+                        return String(value)
+                            .replace(/&/g, '&amp;')
+                            .replace(/</g, '&lt;')
+                            .replace(/>/g, '&gt;')
+                            .replace(/"/g, '&quot;')
+                            .replace(/'/g, '&#39;');
+                    };
 
-                    const tableHeader = headers
-                        .map(function (header) {
-                            return `<th>${header}</th>`;
-                        })
-                        .join('');
+                    const createRow = function (label, value) {
+                        return `<div class="key">${escapeHtml(label)}</div><div class="value">${escapeHtml(value)}</div>`;
+                    };
 
-                    const tableRow = cells
-                        .map(function (cell) {
-                            return `<td>${cell}</td>`;
-                        })
-                        .join('');
+                    const formatOutOf = function (score, total, equivalent) {
+                        const scoreText = score || '0';
+                        const totalText = total || '0';
+                        if (!equivalent) {
+                            return `${scoreText} out of ${totalText}`;
+                        }
+                        return `${scoreText} out of ${totalText} (${equivalent})`;
+                    };
 
+                    const attendanceRows = [
+                        createRow('Attendance/GMRC', formatOutOf(getValue(2), getValue(3))),
+                        createRow('Rating', getValue(4))
+                    ].join('');
+
+                    const laboratoryRows = [
+                        createRow('Lab 1', getValue(5)),
+                        createRow('Lab 2', getValue(6)),
+                        createRow('Lab 3', getValue(7)),
+                        createRow('Average', getValue(8)),
+                        createRow('Rating', getValue(9))
+                    ].join('');
+
+                    const quizzesRows = [
+                        createRow('Quiz 1', formatOutOf(getValue(10), getValue(11), getValue(12))),
+                        createRow('Quiz 2', formatOutOf(getValue(13), getValue(14), getValue(15))),
+                        createRow('Quiz 3', formatOutOf(getValue(16), getValue(17), getValue(18))),
+                        createRow('Average', getValue(19)),
+                        createRow('Rating', getValue(20))
+                    ].join('');
+
+                    const examRows = [
+                        createRow('Midterm Exam', formatOutOf(getValue(21), getValue(22), getValue(23))),
+                        createRow('Rating', getValue(24))
+                    ].join('');
+
+                    const gradeCalculationRows = [
+                        createRow('Raw Midterm', getValue(25)),
+                        createRow('Prelim Bearing', getValue(26)),
+                        createRow('Transmuted Grade', getValue(27))
+                    ].join('');
+
+                    output.className = '';
                     output.innerHTML = `
-                        <div class="table-wrap">
-                            <table>
-                                <thead>
-                                    <tr>${tableHeader}</tr>
-                                </thead>
-                                <tbody>
-                                    <tr>${tableRow}</tr>
-                                </tbody>
-                            </table>
+                        <div class="cards-grid">
+                            <section class="section-card">
+                                <h2>Attendance</h2>
+                                <div class="kv">${attendanceRows}</div>
+                            </section>
+                            <section class="section-card">
+                                <h2>Laboratory</h2>
+                                <div class="kv">${laboratoryRows}</div>
+                            </section>
+                            <section class="section-card">
+                                <h2>Quizzes</h2>
+                                <div class="kv">${quizzesRows}</div>
+                            </section>
+                            <section class="section-card">
+                                <h2>Exam</h2>
+                                <div class="kv">${examRows}</div>
+                            </section>
+                            <section class="section-card">
+                                <h2>Grade Calculation</h2>
+                                <div class="kv">${gradeCalculationRows}</div>
+                            </section>
                         </div>
                     `;
                 })
