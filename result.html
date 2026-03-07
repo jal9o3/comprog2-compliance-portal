@@ -181,13 +181,15 @@
   </head>
   <body>
     <main class="card">
+      <a href="index.html">← Back</a>
+      <br /><br />
       <h1>Midterm Compliance - Computer Programming 2</h1>
       <div id="meta" class="muted"></div>
       <div id="output" class="message">Loading...</div>
-      <a href="index.html">← Back</a>
       <p class="disclaimer">
         <strong>Last updated:</strong> March 6, 2026 03:30 PM<br />
-        <b>Reminder:</b> Sabihin agad kay Sir kapag nakapagcomply na sa inyong missing requirements. Thank you!
+        <b>Reminder:</b> Sabihin agad kay Sir kapag nakapagcomply na sa inyong
+        missing requirements. Thank you!
       </p>
     </main>
 
@@ -219,7 +221,9 @@
               .filter(Boolean);
 
             const matchedRow = rows.find(function (line) {
-              return line.split(",")[0].trim().toLowerCase() === normalizedStudentId;
+              return (
+                line.split(",")[0].trim().toLowerCase() === normalizedStudentId
+              );
             });
 
             if (!matchedRow) {
