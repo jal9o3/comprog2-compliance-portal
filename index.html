@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Comprog2 Midterm Compliance Portal</title>
+        <title>Ada | Comprog2 Midterm Compliance Portal</title>
         <style>
             @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap");
 
@@ -346,7 +346,7 @@
         <main class="shell">
             <header class="topbar">
                 <h1 id="portal-title" class="title">Midterm Compliance Portal</h1>
-                <p id="portal-subtitle" class="subtitle">CP2 Assistant</p>
+                <p id="portal-subtitle" class="subtitle">Ada</p>
             </header>
 
             <section id="thread" class="thread" aria-live="polite"></section>
@@ -380,8 +380,9 @@
 
             const textByLang = {
                 tl: {
+                    tabTitle: "Ada | Portal ng Midterm Compliance",
                     title: "Portal ng Midterm Compliance",
-                    subtitle: "CP2 Katulong",
+                    subtitle: "Ada",
                     studentIdPlaceholder: "I-type ang iyong Student ID (hal: C-2025-0067)",
                     sendLabel: "Ipadala",
                     composerHint: "Pindutin ang Enter para ipadala",
@@ -409,7 +410,7 @@
                     localServerHint:
                         "Kung diretso mo itong binubuksan bilang file, patakbuhin ito gamit ang local web server.",
                     welcomeMessage:
-                        "Hi! Maaari kong i-check ang iyong Midterm Compliance record. Pakilagay ang iyong Student ID.",
+                        "Hi! Ako si Ada. Maaari kong i-check ang iyong Midterm Compliance record. Pakilagay ang iyong Student ID.",
                     checkingNow: "Tinitingnan ko na ang iyong record...",
                     retakeBothReminder:
                         "Maaari mo pang i-retake ang quizzes nang hanggang tatlong beses, at ang laboratories nang kahit ilang beses bago ang unang araw ng exams.",
@@ -421,8 +422,9 @@
                         "Pakisabi agad sa instructor kung nakapag-comply ka na.",
                 },
                 en: {
+                    tabTitle: "Ada | Midterm Compliance Portal",
                     title: "Midterm Compliance Portal",
-                    subtitle: "CP2 Assistant",
+                    subtitle: "Ada",
                     studentIdPlaceholder: "Type your Student ID (ex: C-2025-0067)",
                     sendLabel: "Send",
                     composerHint: "Press Enter to send",
@@ -450,7 +452,7 @@
                     localServerHint:
                         "If you're opening this directly as a file, run this using a local web server.",
                     welcomeMessage:
-                        "Hi! I can check your Midterm Compliance record. Please enter your Student ID.",
+                        "Hi! I'm Ada. I can check your Midterm Compliance record. Please enter your Student ID.",
                     checkingNow: "Checking your record now...",
                     retakeBothReminder:
                         "You may still retake quizzes up to three times, and laboratories as many times as you can before the first day of exams.",
@@ -470,6 +472,7 @@
             };
 
             const applyLanguage = function () {
+                document.title = getText("tabTitle");
                 titleEl.textContent = getText("title");
                 subtitleEl.textContent = getText("subtitle");
                 studentIdInput.placeholder = getText("studentIdPlaceholder");
