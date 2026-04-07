@@ -1,79 +1,321 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comprog2 Midterm Compliance Portal</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            min-height: 100vh;
-            display: grid;
-            place-items: center;
-            background: #f5f5f5;
-        }
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Comprog2 Midterm Compliance Portal</title>
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap");
 
-        .card {
-            width: min(480px, 92vw);
-            background: white;
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-        }
-
-        h1 {
-            margin-top: 0;
-            font-size: 1.35rem;
-        }
-
-        .row {
-            display: flex;
-            gap: 10px;
-        }
-
-        input {
-            flex: 1;
-            padding: 10px 12px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            font-size: 1rem;
-        }
-
-        button {
-            padding: 10px 16px;
-            border: 0;
-            border-radius: 8px;
-            cursor: pointer;
-            background: #1f6feb;
-            color: white;
-            font-size: 1rem;
-        }
-    </style>
-</head>
-<body>
-    <main class="card">
-        <h1>Midterm Compliance Portal</h1>
-        <form id="check-form">
-            <div class="row">
-                <input id="student-id" type="text" placeholder="Enter Student ID (e.g. C-2025-0067)" required />
-                <button type="submit">Check</button>
-            </div>
-        </form>
-    </main>
-
-    <script>
-        const form = document.getElementById('check-form');
-        const studentIdInput = document.getElementById('student-id');
-
-        form.addEventListener('submit', function (event) {
-            event.preventDefault();
-            const studentId = studentIdInput.value.trim();
-            if (!studentId) {
-                return;
+            :root {
+                --ink-1: #fdfdf8;
+                --ink-2: #d6e3dd;
+                --canvas-1: #172126;
+                --canvas-2: #0f171b;
+                --assistant-bubble: #27363f;
+                --user-bubble: #57c690;
+                --composer: rgba(9, 13, 16, 0.8);
+                --stroke: rgba(255, 255, 255, 0.16);
             }
-            window.location.href = `result.html?id=${encodeURIComponent(studentId)}`;
-        });
-    </script>
-</body>
+
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                min-height: 100vh;
+                font-family: "Space Grotesk", "Segoe UI", sans-serif;
+                color: var(--ink-1);
+                background: radial-gradient(circle at 15% 20%, #2f4b5a 0%, transparent 45%),
+                    radial-gradient(circle at 90% 0%, #304e43 0%, transparent 40%),
+                    linear-gradient(140deg, var(--canvas-1), var(--canvas-2));
+                overflow: hidden;
+            }
+
+            .orb {
+                position: fixed;
+                border-radius: 50%;
+                filter: blur(2px);
+                pointer-events: none;
+                opacity: 0.35;
+                animation: drift 12s ease-in-out infinite alternate;
+            }
+
+            .orb-one {
+                width: 240px;
+                height: 240px;
+                background: #6bc3ff;
+                top: -80px;
+                right: -40px;
+            }
+
+            .orb-two {
+                width: 320px;
+                height: 320px;
+                background: #84e8ae;
+                left: -120px;
+                bottom: -180px;
+                animation-delay: 1s;
+            }
+
+            @keyframes drift {
+                from {
+                    transform: translateY(0px) scale(1);
+                }
+
+                to {
+                    transform: translateY(24px) scale(1.08);
+                }
+            }
+
+            .shell {
+                width: min(960px, 100%);
+                margin: 0 auto;
+                min-height: 100vh;
+                display: grid;
+                grid-template-rows: auto 1fr auto;
+                position: relative;
+            }
+
+            .topbar {
+                padding: 22px 20px 10px;
+            }
+
+            .title {
+                margin: 0;
+                font-size: clamp(1.05rem, 2.7vw, 1.4rem);
+                letter-spacing: 0.02em;
+            }
+
+            .subtitle {
+                margin: 6px 0 0;
+                color: var(--ink-2);
+                font-size: 0.9rem;
+            }
+
+            .thread {
+                padding: 12px 14px 150px;
+                overflow-y: auto;
+                scroll-behavior: smooth;
+            }
+
+            .bubble-row {
+                display: flex;
+                margin: 10px 0;
+                opacity: 0;
+                transform: translateY(10px);
+                animation: fade-up 0.35s ease forwards;
+            }
+
+            .bubble-row.assistant {
+                justify-content: flex-start;
+                align-items: flex-end;
+                gap: 10px;
+            }
+
+            .bubble-row.user {
+                justify-content: flex-end;
+            }
+
+            @keyframes fade-up {
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .bubble {
+                max-width: min(680px, 82vw);
+                border-radius: 16px;
+                padding: 12px 14px;
+                line-height: 1.45;
+                font-size: 0.98rem;
+            }
+
+            .bubble.assistant {
+                background: var(--assistant-bubble);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+            }
+
+            .bubble.user {
+                background: linear-gradient(155deg, #6dd3a0, var(--user-bubble));
+                color: #0a2316;
+                font-weight: 600;
+            }
+
+            .avatar {
+                width: 34px;
+                height: 34px;
+                border-radius: 50%;
+                flex: 0 0 34px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                background: radial-gradient(circle at 30% 25%, #f6fbff, #bed2de);
+                border: 1px solid rgba(255, 255, 255, 0.35);
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+                overflow: hidden;
+            }
+
+            .avatar img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+            }
+
+            .composer-wrap {
+                position: fixed;
+                left: 50%;
+                transform: translateX(-50%);
+                bottom: 16px;
+                width: min(920px, calc(100vw - 22px));
+                border: 1px solid var(--stroke);
+                background: var(--composer);
+                backdrop-filter: blur(10px);
+                border-radius: 18px;
+                padding: 10px;
+            }
+
+            .composer {
+                display: grid;
+                grid-template-columns: 1fr auto;
+                gap: 10px;
+            }
+
+            .composer input {
+                width: 100%;
+                border: 0;
+                outline: none;
+                border-radius: 12px;
+                padding: 12px 13px;
+                font: inherit;
+                color: var(--ink-1);
+                background: rgba(255, 255, 255, 0.07);
+            }
+
+            .composer input::placeholder {
+                color: #bed0c7;
+            }
+
+            .composer button {
+                border: 0;
+                border-radius: 12px;
+                width: 48px;
+                cursor: pointer;
+                background: linear-gradient(155deg, #ffe6a6, #ffc550);
+                color: #1c1a14;
+                font-size: 1.15rem;
+                font-weight: 700;
+            }
+
+            .composer button:disabled {
+                opacity: 0.55;
+                cursor: not-allowed;
+            }
+
+            .hint {
+                margin: 7px 4px 0;
+                font-size: 0.76rem;
+                color: #d0ddd7;
+            }
+
+            @media (max-width: 640px) {
+                .topbar {
+                    padding: 18px 14px 8px;
+                }
+
+                .thread {
+                    padding: 8px 10px 145px;
+                }
+
+                .bubble {
+                    max-width: 90vw;
+                    font-size: 0.94rem;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="orb orb-one"></div>
+        <div class="orb orb-two"></div>
+
+        <main class="shell">
+            <header class="topbar">
+                <h1 class="title">Midterm Compliance Portal</h1>
+                <p class="subtitle">CP2 Assistant</p>
+            </header>
+
+            <section id="thread" class="thread" aria-live="polite"></section>
+
+            <footer class="composer-wrap">
+                <form id="chat-form" class="composer">
+                    <input
+                        id="student-id"
+                        type="text"
+                        placeholder="Type your Student ID (ex: C-2025-0067)"
+                        autocomplete="off"
+                        required
+                    />
+                    <button type="submit" id="send-btn" aria-label="Send">↑</button>
+                </form>
+                <p class="hint">Press Enter to send</p>
+            </footer>
+        </main>
+
+        <script>
+            const thread = document.getElementById("thread");
+            const form = document.getElementById("chat-form");
+            const studentIdInput = document.getElementById("student-id");
+            const sendBtn = document.getElementById("send-btn");
+
+            const appendMessage = function (role, text) {
+                const row = document.createElement("div");
+                row.className = `bubble-row ${role}`;
+
+                if (role === "assistant") {
+                    const avatar = document.createElement("span");
+                    avatar.className = "avatar";
+                    avatar.setAttribute("aria-hidden", "true");
+                    avatar.innerHTML = '<img src="assets/assistant.png" alt="" />';
+                    row.appendChild(avatar);
+                }
+
+                const bubble = document.createElement("div");
+                bubble.className = `bubble ${role}`;
+                bubble.textContent = text;
+
+                row.appendChild(bubble);
+                thread.appendChild(row);
+                thread.scrollTop = thread.scrollHeight;
+            };
+
+            appendMessage(
+                "assistant",
+                "Hi! I can check your Midterm Compliance record. Please enter your Student ID.",
+            );
+
+            form.addEventListener("submit", function (event) {
+                event.preventDefault();
+                const studentId = studentIdInput.value.trim();
+                if (!studentId) {
+                    return;
+                }
+
+                appendMessage("user", studentId);
+                studentIdInput.value = "";
+                studentIdInput.disabled = true;
+                sendBtn.disabled = true;
+
+                setTimeout(function () {
+                    appendMessage("assistant", "Checking your record now...");
+                }, 220);
+
+                setTimeout(function () {
+                    window.location.href = `result.html?id=${encodeURIComponent(studentId)}`;
+                }, 900);
+            });
+        </script>
+    </body>
 </html>
