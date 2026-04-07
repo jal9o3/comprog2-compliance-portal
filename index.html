@@ -60,6 +60,39 @@
                 animation-delay: 1s;
             }
 
+            .language-toggle {
+                position: fixed;
+                top: 14px;
+                right: 14px;
+                display: inline-flex;
+                gap: 6px;
+                padding: 6px;
+                border-radius: 999px;
+                border: 1px solid rgba(255, 255, 255, 0.24);
+                background: rgba(7, 12, 15, 0.72);
+                backdrop-filter: blur(8px);
+                z-index: 30;
+            }
+
+            .lang-btn {
+                border: 0;
+                border-radius: 999px;
+                padding: 7px 10px;
+                font: inherit;
+                font-size: 0.78rem;
+                font-weight: 700;
+                letter-spacing: 0.01em;
+                color: #d7e6df;
+                background: transparent;
+                cursor: pointer;
+                transition: background 0.2s ease, color 0.2s ease;
+            }
+
+            .lang-btn.active {
+                background: rgba(111, 221, 164, 0.24);
+                color: #f6fff9;
+            }
+
             @keyframes drift {
                 from {
                     transform: translateY(0px) scale(1);
@@ -305,10 +338,15 @@
         <div class="orb orb-one"></div>
         <div class="orb orb-two"></div>
 
+        <div class="language-toggle" role="group" aria-label="Language toggle">
+            <button type="button" class="lang-btn" data-lang="tl">🇵🇭 Tagalog</button>
+            <button type="button" class="lang-btn" data-lang="en">🇺🇸 English</button>
+        </div>
+
         <main class="shell">
             <header class="topbar">
-                <h1 class="title">Midterm Compliance Portal</h1>
-                <p class="subtitle">CP2 Assistant</p>
+                <h1 id="portal-title" class="title">Midterm Compliance Portal</h1>
+                <p id="portal-subtitle" class="subtitle">CP2 Assistant</p>
             </header>
 
             <section id="thread" class="thread" aria-live="polite"></section>
@@ -324,7 +362,7 @@
                     />
                     <button type="submit" id="send-btn" aria-label="Send">↑</button>
                 </form>
-                <p class="hint">Press Enter to send</p>
+                <p id="composer-hint" class="hint">Press Enter to send</p>
             </footer>
         </main>
 
@@ -335,6 +373,110 @@
             const form = document.getElementById("chat-form");
             const studentIdInput = document.getElementById("student-id");
             const sendBtn = document.getElementById("send-btn");
+            const titleEl = document.getElementById("portal-title");
+            const subtitleEl = document.getElementById("portal-subtitle");
+            const composerHintEl = document.getElementById("composer-hint");
+            const languageButtons = Array.from(document.querySelectorAll(".lang-btn"));
+
+            const textByLang = {
+                tl: {
+                    title: "Portal ng Midterm Compliance",
+                    subtitle: "CP2 Katulong",
+                    studentIdPlaceholder: "I-type ang iyong Student ID (hal: C-2025-0067)",
+                    sendLabel: "Ipadala",
+                    composerHint: "Pindutin ang Enter para ipadala",
+                    outOf: "mula sa",
+                    studentIdMeta: "Student ID",
+                    attendance: "Attendance",
+                    laboratory: "Laboratory",
+                    quizzes: "Quizzes",
+                    exam: "Exam",
+                    gradeCalculation: "Pagkalkula ng Marka",
+                    points: "Points",
+                    rating: "Rating",
+                    tuple: "Tuple",
+                    set: "Set",
+                    regex: "Regex",
+                    average: "Average",
+                    score: "Score",
+                    rawMidterm: "Raw Midterm",
+                    prelimBearing: "Prelim Bearing",
+                    transmutedGrade: "Transmuted Grade",
+                    noRecord: "Walang rekord na nakita para sa Student ID na ito.",
+                    loadCsvError: "Hindi ma-load ang CSV file.",
+                    loadCsvWithHint:
+                        "Hindi ma-load ang CSV file. Kung diretso mo itong binubuksan bilang file, patakbuhin ito gamit ang local web server.",
+                    localServerHint:
+                        "Kung diretso mo itong binubuksan bilang file, patakbuhin ito gamit ang local web server.",
+                    welcomeMessage:
+                        "Hi! Maaari kong i-check ang iyong Midterm Compliance record. Pakilagay ang iyong Student ID.",
+                    checkingNow: "Tinitingnan ko na ang iyong record...",
+                },
+                en: {
+                    title: "Midterm Compliance Portal",
+                    subtitle: "CP2 Assistant",
+                    studentIdPlaceholder: "Type your Student ID (ex: C-2025-0067)",
+                    sendLabel: "Send",
+                    composerHint: "Press Enter to send",
+                    outOf: "out of",
+                    studentIdMeta: "Student ID",
+                    attendance: "Attendance",
+                    laboratory: "Laboratory",
+                    quizzes: "Quizzes",
+                    exam: "Exam",
+                    gradeCalculation: "Grade Calculation",
+                    points: "Points",
+                    rating: "Rating",
+                    tuple: "Tuple",
+                    set: "Set",
+                    regex: "Regex",
+                    average: "Average",
+                    score: "Score",
+                    rawMidterm: "Raw Midterm",
+                    prelimBearing: "Prelim Bearing",
+                    transmutedGrade: "Transmuted Grade",
+                    noRecord: "No record found for this student ID.",
+                    loadCsvError: "Could not load CSV file.",
+                    loadCsvWithHint:
+                        "Could not load CSV file. If you're opening this directly as a file, run this using a local web server.",
+                    localServerHint:
+                        "If you're opening this directly as a file, run this using a local web server.",
+                    welcomeMessage:
+                        "Hi! I can check your Midterm Compliance record. Please enter your Student ID.",
+                    checkingNow: "Checking your record now...",
+                },
+            };
+
+            let currentLanguage = localStorage.getItem("portal-language") || "tl";
+
+            const getText = function (key) {
+                return textByLang[currentLanguage][key] || textByLang.en[key] || "";
+            };
+
+            const applyLanguage = function () {
+                titleEl.textContent = getText("title");
+                subtitleEl.textContent = getText("subtitle");
+                studentIdInput.placeholder = getText("studentIdPlaceholder");
+                sendBtn.setAttribute("aria-label", getText("sendLabel"));
+                composerHintEl.textContent = getText("composerHint");
+
+                languageButtons.forEach(function (button) {
+                    const isActive = button.dataset.lang === currentLanguage;
+                    button.classList.toggle("active", isActive);
+                    button.setAttribute("aria-pressed", String(isActive));
+                });
+
+                const translatableBubbles = thread.querySelectorAll(
+                    ".bubble.assistant[data-i18n-key]",
+                );
+
+                translatableBubbles.forEach(function (bubble) {
+                    const key = bubble.getAttribute("data-i18n-key");
+                    if (key) {
+                        bubble.textContent = getText(key);
+                    }
+                });
+            };
 
             const updateComposerClearance = function () {
                 const clearance = composerWrap.offsetHeight + 24;
@@ -347,7 +489,7 @@
                 });
             };
 
-            const appendMessage = function (role, text) {
+            const appendMessage = function (role, text, i18nKey) {
                 const row = document.createElement("div");
                 row.className = `bubble-row ${role}`;
 
@@ -362,6 +504,9 @@
                 const bubble = document.createElement("div");
                 bubble.className = `bubble ${role}`;
                 bubble.textContent = text;
+                if (i18nKey && role === "assistant") {
+                    bubble.setAttribute("data-i18n-key", i18nKey);
+                }
 
                 row.appendChild(bubble);
                 thread.appendChild(row);
@@ -413,9 +558,9 @@
                 const scoreText = score || "0";
                 const totalText = total || "0";
                 if (!equivalent) {
-                    return `${scoreText} out of ${totalText}`;
+                    return `${scoreText} ${getText("outOf")} ${totalText}`;
                 }
-                return `${scoreText} out of ${totalText} (${equivalent})`;
+                return `${scoreText} ${getText("outOf")} ${totalText} (${equivalent})`;
             };
 
             const renderResultCard = function (studentId, cells) {
@@ -424,58 +569,58 @@
                 };
 
                 const attendanceRows = [
-                    createRow("Points", formatOutOf(getValue(2), getValue(3))),
-                    createRow("Rating", getValue(4)),
+                    createRow(getText("points"), formatOutOf(getValue(2), getValue(3))),
+                    createRow(getText("rating"), getValue(4)),
                 ].join("");
 
                 const laboratoryRows = [
-                    createRow("Tuple", getValue(5)),
-                    createRow("Set", getValue(6)),
-                    createRow("Regex", getValue(7)),
-                    createRow("Average", getValue(8)),
-                    createRow("Rating", getValue(9)),
+                    createRow(getText("tuple"), getValue(5)),
+                    createRow(getText("set"), getValue(6)),
+                    createRow(getText("regex"), getValue(7)),
+                    createRow(getText("average"), getValue(8)),
+                    createRow(getText("rating"), getValue(9)),
                 ].join("");
 
                 const quizzesRows = [
-                    createRow("Tuple", formatOutOf(getValue(10), getValue(11), getValue(12))),
-                    createRow("Set", formatOutOf(getValue(13), getValue(14), getValue(15))),
-                    createRow("Regex", formatOutOf(getValue(16), getValue(17), getValue(18))),
-                    createRow("Average", getValue(19)),
-                    createRow("Rating", getValue(20)),
+                    createRow(getText("tuple"), formatOutOf(getValue(10), getValue(11), getValue(12))),
+                    createRow(getText("set"), formatOutOf(getValue(13), getValue(14), getValue(15))),
+                    createRow(getText("regex"), formatOutOf(getValue(16), getValue(17), getValue(18))),
+                    createRow(getText("average"), getValue(19)),
+                    createRow(getText("rating"), getValue(20)),
                 ].join("");
 
                 const examRows = [
-                    createRow("Score", formatOutOf(getValue(21), getValue(22), getValue(23))),
-                    createRow("Rating", getValue(24)),
+                    createRow(getText("score"), formatOutOf(getValue(21), getValue(22), getValue(23))),
+                    createRow(getText("rating"), getValue(24)),
                 ].join("");
 
                 const gradeCalculationRows = [
-                    createRow("Raw Midterm", getValue(25)),
-                    createRow("Prelim Bearing", getValue(26)),
-                    createRow("Transmuted Grade", getValue(27), "transmuted-value"),
+                    createRow(getText("rawMidterm"), getValue(25)),
+                    createRow(getText("prelimBearing"), getValue(26)),
+                    createRow(getText("transmutedGrade"), getValue(27), "transmuted-value"),
                 ].join("");
 
                 return `
-                    <p class="result-meta">Student ID: ${escapeHtml(studentId)}</p>
+                    <p class="result-meta">${escapeHtml(getText("studentIdMeta"))}: ${escapeHtml(studentId)}</p>
                     <div class="cards-grid">
                         <section class="section-card">
-                            <h2>Attendance</h2>
+                            <h2>${escapeHtml(getText("attendance"))}</h2>
                             <div class="kv">${attendanceRows}</div>
                         </section>
                         <section class="section-card">
-                            <h2>Laboratory</h2>
+                            <h2>${escapeHtml(getText("laboratory"))}</h2>
                             <div class="kv">${laboratoryRows}</div>
                         </section>
                         <section class="section-card">
-                            <h2>Quizzes</h2>
+                            <h2>${escapeHtml(getText("quizzes"))}</h2>
                             <div class="kv">${quizzesRows}</div>
                         </section>
                         <section class="section-card">
-                            <h2>Exam</h2>
+                            <h2>${escapeHtml(getText("exam"))}</h2>
                             <div class="kv">${examRows}</div>
                         </section>
                         <section class="section-card grade-card">
-                            <h2>Grade Calculation</h2>
+                            <h2>${escapeHtml(getText("gradeCalculation"))}</h2>
                             <div class="kv">${gradeCalculationRows}</div>
                         </section>
                     </div>
@@ -487,7 +632,7 @@
                 return fetch("midterm_compliance.csv")
                     .then(function (response) {
                         if (!response.ok) {
-                            throw new Error("Could not load CSV file.");
+                            throw new Error("csv_load_error");
                         }
                         return response.text();
                     })
@@ -504,7 +649,7 @@
                         });
 
                         if (!matchedRow) {
-                            appendMessage("assistant", "No record found for this student ID.");
+                            appendMessage("assistant", getText("noRecord"), "noRecord");
                             return;
                         }
 
@@ -512,16 +657,33 @@
                         appendAssistantHtml(renderResultCard(studentId, cells));
                     })
                     .catch(function (error) {
-                        appendMessage(
-                            "assistant",
-                            `${error.message} If you're opening this directly as a file, run this using a local web server.`,
-                        );
+                        if (error.message === "csv_load_error") {
+                            appendMessage("assistant", getText("loadCsvWithHint"), "loadCsvWithHint");
+                            return;
+                        }
+                        appendMessage("assistant", `${error.message} ${getText("localServerHint")}`);
                     });
             };
 
+            languageButtons.forEach(function (button) {
+                button.addEventListener("click", function () {
+                    const selectedLanguage = button.dataset.lang;
+                    if (!selectedLanguage || selectedLanguage === currentLanguage) {
+                        return;
+                    }
+
+                    currentLanguage = selectedLanguage;
+                    localStorage.setItem("portal-language", currentLanguage);
+                    applyLanguage();
+                });
+            });
+
+            applyLanguage();
+
             appendMessage(
                 "assistant",
-                "Hi! I can check your Midterm Compliance record. Please enter your Student ID.",
+                getText("welcomeMessage"),
+                "welcomeMessage",
             );
 
             updateComposerClearance();
@@ -540,7 +702,7 @@
                 sendBtn.disabled = true;
 
                 setTimeout(function () {
-                    appendMessage("assistant", "Checking your record now...");
+                    appendMessage("assistant", getText("checkingNow"), "checkingNow");
                 }, 220);
 
                 setTimeout(function () {
