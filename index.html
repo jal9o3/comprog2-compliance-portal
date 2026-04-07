@@ -484,6 +484,16 @@
                         'Maaari mo pang i-retake ang laboratories nang kahit ilang beses bago ang unang araw ng exams sa <a href="https://www.hackerrank.com/tlc-bsit1" target="_blank" rel="noopener noreferrer">HackerRank</a>.',
                     compliedReminder:
                         'Pakisabi agad sa <a href="https://www.facebook.com/jerome.loria.261652/" target="_blank" rel="noopener noreferrer">instructor</a> kung nakapag-comply ka na.',
+                    missingLabSuggested: "Hindi na-record ang laboratory score ko!",
+                    checkingHackerRank: "Tinitingnan ko ang mga rehistradong HackerRank username...",
+                    hackerRankListTitle: "Narito ang mga rehistradong HackerRank username:",
+                    noRegisteredHackerRankUsers: "Walang nakitang rehistradong HackerRank username.",
+                    hackerRankReminder:
+                        "Paki-check kung tama ang rehistradong HackerRank username mo. Isang account lang ang dapat gamitin ng bawat student para maiwasan ang recording conflicts.",
+                    hackerRankVideoGuide:
+                        'Pwede mong panoorin ang unang minuto ng <a href="https://www.youtube.com/watch?v=iorTgl8LQik" target="_blank" rel="noopener noreferrer">video na ito</a> para malaman kung paano i-check ang HackerRank ID mo. Yung nagsisimula sa @ ang kailangan mo.',
+                    loadHackerRankCsvError:
+                        "Hindi ma-load ang HackerRank usernames file. Kung diretso mo itong binubuksan bilang file, patakbuhin ito gamit ang local web server.",
                 },
                 en: {
                     tabTitle: "Ada | Midterm Compliance Portal",
@@ -526,6 +536,16 @@
                         'You may still retake laboratories as many times as you can before the first day of exams in <a href="https://www.hackerrank.com/tlc-bsit1" target="_blank" rel="noopener noreferrer">HackerRank</a>.',
                     compliedReminder:
                         'Please tell your <a href="https://www.facebook.com/jerome.loria.261652/" target="_blank" rel="noopener noreferrer">instructor</a> right away if you have already complied.',
+                    missingLabSuggested: "My laboratory score was not recorded!",
+                    checkingHackerRank: "Checking registered HackerRank usernames now...",
+                    hackerRankListTitle: "Here are the registered HackerRank usernames:",
+                    noRegisteredHackerRankUsers: "No registered HackerRank usernames found.",
+                    hackerRankReminder:
+                        "Please check if your registered HackerRank username is accurate. Only one account should be used per student to avoid recording conflicts.",
+                    hackerRankVideoGuide:
+                        'You can watch the first minute of <a href="https://www.youtube.com/watch?v=iorTgl8LQik" target="_blank" rel="noopener noreferrer">this video</a> to learn how to check your HackerRank ID. The one that starts with @ is what you need.',
+                    loadHackerRankCsvError:
+                        "Could not load the HackerRank usernames file. If you're opening this directly as a file, run this using a local web server.",
                 },
             };
 
@@ -540,6 +560,7 @@
                 titleEl.textContent = getText("title");
                 subtitleEl.textContent = getText("subtitle");
                 studentIdInput.placeholder = getText("studentIdPlaceholder");
+                suggestedReplyButton.textContent = getText("missingLabSuggested");
                 sendBtn.setAttribute("aria-label", getText("sendLabel"));
                 composerHintEl.textContent = getText("composerHint");
 
@@ -848,6 +869,89 @@
                     });
             };
 
+            const parseHackerRankLine = function (line) {
+                const lastCommaIndex = line.lastIndexOf(",");
+                if (lastCommaIndex === -1) {
+                    return null;
+                }
+
+                const rawName = line.slice(0, lastCommaIndex).trim();
+                const rawUsername = line.slice(lastCommaIndex + 1).trim();
+                const name = rawName.replace(/^"|"$/g, "").trim();
+                const username = rawUsername.replace(/^"|"$/g, "").trim();
+
+                return {
+                    name,
+                    username,
+                };
+            };
+
+            const renderHackerRankUsernames = function (entries) {
+                const items = entries
+                    .map(function (entry) {
+                        return `<li>${escapeHtml(entry.name)}: <strong>${escapeHtml(entry.username)}</strong></li>`;
+                    })
+                    .join("");
+
+                return `<p class="result-meta">${escapeHtml(getText("hackerRankListTitle"))}</p><ul>${items}</ul>`;
+            };
+
+            const lookupHackerRankAndRespond = function () {
+                return fetch("hackerrank_usernames.csv")
+                    .then(function (response) {
+                        if (!response.ok) {
+                            throw new Error("hackerrank_csv_load_error");
+                        }
+                        return response.text();
+                    })
+                    .then(function (csvText) {
+                        const entries = csvText
+                            .split(/\r?\n/)
+                            .map(function (line) {
+                                return line.trim();
+                            })
+                            .filter(Boolean)
+                            .map(parseHackerRankLine)
+                            .filter(function (entry) {
+                                return entry && entry.username;
+                            });
+
+                        if (!entries.length) {
+                            appendMessage(
+                                "assistant",
+                                getText("noRegisteredHackerRankUsers"),
+                                "noRegisteredHackerRankUsers",
+                            );
+                            return;
+                        }
+
+                        appendAssistantHtml(renderHackerRankUsernames(entries));
+                        appendMessage("assistant", getText("hackerRankReminder"), "hackerRankReminder");
+                        appendAssistantI18nHtml("hackerRankVideoGuide");
+                    })
+                    .catch(function (error) {
+                        if (error.message === "hackerrank_csv_load_error") {
+                            appendMessage(
+                                "assistant",
+                                getText("loadHackerRankCsvError"),
+                                "loadHackerRankCsvError",
+                            );
+                            return;
+                        }
+
+                        appendMessage("assistant", `${error.message} ${getText("localServerHint")}`);
+                    });
+            };
+
+            const isMissingLaboratoryConcern = function (message) {
+                const normalizedMessage = message.trim().toLowerCase();
+                const triggers = [textByLang.tl.missingLabSuggested, textByLang.en.missingLabSuggested];
+
+                return triggers.some(function (trigger) {
+                    return normalizedMessage === trigger.toLowerCase();
+                });
+            };
+
             languageButtons.forEach(function (button) {
                 button.addEventListener("click", function () {
                     const selectedLanguage = button.dataset.lang;
@@ -874,7 +978,7 @@
 
             suggestedReplyButton.addEventListener("click", function () {
                 studentIdInput.value = suggestedReplyButton.textContent.trim();
-                studentIdInput.focus();
+                form.requestSubmit();
             });
 
             form.addEventListener("submit", function (event) {
@@ -891,6 +995,24 @@
                 studentIdInput.value = "";
                 studentIdInput.disabled = true;
                 sendBtn.disabled = true;
+
+                const isSuggestedLaboratoryConcern = isMissingLaboratoryConcern(studentId);
+
+                if (isSuggestedLaboratoryConcern) {
+                    setTimeout(function () {
+                        appendMessage("assistant", getText("checkingHackerRank"), "checkingHackerRank");
+                    }, 220);
+
+                    setTimeout(function () {
+                        lookupHackerRankAndRespond().finally(function () {
+                            studentIdInput.disabled = false;
+                            sendBtn.disabled = false;
+                            studentIdInput.focus();
+                        });
+                    }, 700);
+
+                    return;
+                }
 
                 setTimeout(function () {
                     appendMessage("assistant", getText("checkingNow"), "checkingNow");
