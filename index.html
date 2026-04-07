@@ -411,6 +411,14 @@
                     welcomeMessage:
                         "Hi! Maaari kong i-check ang iyong Midterm Compliance record. Pakilagay ang iyong Student ID.",
                     checkingNow: "Tinitingnan ko na ang iyong record...",
+                    retakeBothReminder:
+                        "Maaari mo pang i-retake ang quizzes nang hanggang tatlong beses, at ang laboratories nang kahit ilang beses bago ang unang araw ng exams.",
+                    retakeQuizzesReminder:
+                        "Maaari mo pang i-retake ang quizzes nang hanggang tatlong beses.",
+                    retakeLaboratoriesReminder:
+                        "Maaari mo pang i-retake ang laboratories nang kahit ilang beses bago ang unang araw ng exams.",
+                    compliedReminder:
+                        "Pakisabi agad sa instructor kung nakapag-comply ka na.",
                 },
                 en: {
                     title: "Midterm Compliance Portal",
@@ -444,6 +452,14 @@
                     welcomeMessage:
                         "Hi! I can check your Midterm Compliance record. Please enter your Student ID.",
                     checkingNow: "Checking your record now...",
+                    retakeBothReminder:
+                        "You may still retake quizzes up to three times, and laboratories as many times as you can before the first day of exams.",
+                    retakeQuizzesReminder:
+                        "You may still retake quizzes up to three times.",
+                    retakeLaboratoriesReminder:
+                        "You may still retake laboratories as many times as you can before the first day of exams.",
+                    compliedReminder:
+                        "Please tell your instructor right away if you have already complied.",
                 },
             };
 
@@ -563,6 +579,58 @@
                 return `${scoreText} ${getText("outOf")} ${totalText} (${equivalent})`;
             };
 
+            const parseNumber = function (value) {
+                const numeric = Number(String(value || "").replace(/%/g, "").trim());
+                return Number.isFinite(numeric) ? numeric : 0;
+            };
+
+            const getRetakeStatus = function (cells) {
+                const getCellValue = function (index) {
+                    return cells[index - 1] || "";
+                };
+
+                const laboratoryScores = [5, 6, 7].map(function (index) {
+                    return parseNumber(getCellValue(index));
+                });
+
+                const quizScorePairs = [
+                    [10, 11],
+                    [13, 14],
+                    [16, 17],
+                ];
+
+                const hasLaboratoryLessThanPerfect = laboratoryScores.some(function (score) {
+                    return score < 100;
+                });
+
+                const hasQuizLessThanPerfect = quizScorePairs.some(function (pair) {
+                    const quizScore = parseNumber(getCellValue(pair[0]));
+                    const quizTotal = parseNumber(getCellValue(pair[1]));
+                    return quizScore < quizTotal;
+                });
+
+                return {
+                    hasLaboratoryLessThanPerfect,
+                    hasQuizLessThanPerfect,
+                };
+            };
+
+            const getRetakeReminderKey = function (status) {
+                if (status.hasQuizLessThanPerfect && status.hasLaboratoryLessThanPerfect) {
+                    return "retakeBothReminder";
+                }
+
+                if (status.hasQuizLessThanPerfect) {
+                    return "retakeQuizzesReminder";
+                }
+
+                if (status.hasLaboratoryLessThanPerfect) {
+                    return "retakeLaboratoriesReminder";
+                }
+
+                return "";
+            };
+
             const renderResultCard = function (studentId, cells) {
                 const getValue = function (index) {
                     return (cells[index - 1] || "").trim();
@@ -655,6 +723,14 @@
 
                         const cells = matchedRow.split(",");
                         appendAssistantHtml(renderResultCard(studentId, cells));
+
+                        const retakeStatus = getRetakeStatus(cells);
+                        const retakeReminderKey = getRetakeReminderKey(retakeStatus);
+
+                        if (retakeReminderKey) {
+                            appendMessage("assistant", getText(retakeReminderKey), retakeReminderKey);
+                            appendMessage("assistant", getText("compliedReminder"), "compliedReminder");
+                        }
                     })
                     .catch(function (error) {
                         if (error.message === "csv_load_error") {
