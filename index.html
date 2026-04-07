@@ -17,6 +17,7 @@
                 --composer: rgba(9, 13, 16, 0.8);
                 --stroke: rgba(255, 255, 255, 0.16);
                 --composer-clearance: 120px;
+                --composer-height: 80px;
             }
 
             * {
@@ -283,6 +284,43 @@
                 gap: 10px;
             }
 
+            .suggested-reply-wrap {
+                position: fixed;
+                left: 50%;
+                transform: translateX(-50%);
+                bottom: calc(16px + var(--composer-height) + 8px);
+                width: min(920px, calc(100vw - 22px));
+                display: none;
+                z-index: 19;
+            }
+
+            .suggested-reply-wrap.visible {
+                display: block;
+                animation: fade-up 0.25s ease forwards;
+            }
+
+            .suggested-reply {
+                display: inline-block;
+                max-width: 100%;
+                border: 1px solid rgba(255, 255, 255, 0.28);
+                border-radius: 16px;
+                padding: 8px 12px;
+                font: inherit;
+                font-size: 0.86rem;
+                font-weight: 600;
+                color: #ecfff5;
+                background: rgba(87, 198, 144, 0.2);
+                cursor: pointer;
+                transition: transform 0.15s ease, background 0.15s ease;
+            }
+
+            .suggested-reply:hover,
+            .suggested-reply:focus-visible {
+                transform: translateY(-1px);
+                background: rgba(87, 198, 144, 0.3);
+                outline: none;
+            }
+
             .composer input {
                 width: 100%;
                 border: 0;
@@ -365,6 +403,16 @@
 
             <section id="thread" class="thread" aria-live="polite"></section>
 
+            <div id="suggested-reply-wrap" class="suggested-reply-wrap" aria-live="polite">
+                <button
+                    type="button"
+                    id="suggested-reply"
+                    class="suggested-reply"
+                >
+                    My laboratory score was not recorded!
+                </button>
+            </div>
+
             <footer class="composer-wrap">
                 <form id="chat-form" class="composer">
                     <input
@@ -390,6 +438,8 @@
             const titleEl = document.getElementById("portal-title");
             const subtitleEl = document.getElementById("portal-subtitle");
             const composerHintEl = document.getElementById("composer-hint");
+            const suggestedReplyWrap = document.getElementById("suggested-reply-wrap");
+            const suggestedReplyButton = document.getElementById("suggested-reply");
             const languageButtons = Array.from(document.querySelectorAll(".lang-btn"));
 
             const textByLang = {
@@ -516,7 +566,12 @@
             };
 
             const updateComposerClearance = function () {
-                const clearance = composerWrap.offsetHeight + 24;
+                const composerHeight = composerWrap.offsetHeight;
+                const suggestionHeight = suggestedReplyWrap.classList.contains("visible")
+                    ? suggestedReplyWrap.offsetHeight + 8
+                    : 0;
+                const clearance = composerHeight + suggestionHeight + 24;
+                document.documentElement.style.setProperty("--composer-height", `${composerHeight}px`);
                 document.documentElement.style.setProperty("--composer-clearance", `${clearance}px`);
             };
 
@@ -773,8 +828,18 @@
                             appendAssistantI18nHtml(retakeReminderKey);
                             appendAssistantI18nHtml("compliedReminder");
                         }
+
+                        const isLaboratoryReminder =
+                            retakeReminderKey === "retakeLaboratoriesReminder" ||
+                            retakeReminderKey === "retakeBothReminder";
+
+                        suggestedReplyWrap.classList.toggle("visible", isLaboratoryReminder);
+                        updateComposerClearance();
                     })
                     .catch(function (error) {
+                        suggestedReplyWrap.classList.remove("visible");
+                        updateComposerClearance();
+
                         if (error.message === "csv_load_error") {
                             appendMessage("assistant", getText("loadCsvWithHint"), "loadCsvWithHint");
                             return;
@@ -807,12 +872,20 @@
             updateComposerClearance();
             window.addEventListener("resize", updateComposerClearance);
 
+            suggestedReplyButton.addEventListener("click", function () {
+                studentIdInput.value = suggestedReplyButton.textContent.trim();
+                studentIdInput.focus();
+            });
+
             form.addEventListener("submit", function (event) {
                 event.preventDefault();
                 const studentId = studentIdInput.value.trim();
                 if (!studentId) {
                     return;
                 }
+
+                suggestedReplyWrap.classList.remove("visible");
+                updateComposerClearance();
 
                 appendMessage("user", studentId);
                 studentIdInput.value = "";
