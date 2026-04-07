@@ -138,6 +138,54 @@
                 border: 1px solid rgba(255, 255, 255, 0.08);
             }
 
+            .bubble.assistant .result-meta {
+                margin: 0 0 10px;
+                color: #d0ddd7;
+                font-size: 0.86rem;
+            }
+
+            .bubble.assistant .cards-grid {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+            }
+
+            .bubble.assistant .section-card {
+                border: 1px solid rgba(255, 255, 255, 0.14);
+                border-radius: 10px;
+                padding: 10px;
+                background: rgba(255, 255, 255, 0.04);
+            }
+
+            .bubble.assistant .section-card.grade-card {
+                grid-column: 1 / -1;
+            }
+
+            .bubble.assistant .section-card h2 {
+                margin: 0 0 8px;
+                font-size: 0.95rem;
+            }
+
+            .bubble.assistant .kv {
+                display: grid;
+                grid-template-columns: 1fr auto;
+                gap: 5px 10px;
+                font-size: 0.88rem;
+            }
+
+            .bubble.assistant .key {
+                color: #d8e5df;
+            }
+
+            .bubble.assistant .value {
+                font-weight: 700;
+            }
+
+            .bubble.assistant .transmuted-value {
+                font-size: 1.1rem;
+                color: #ffe29a;
+            }
+
             .bubble.user {
                 background: linear-gradient(155deg, #6dd3a0, var(--user-bubble));
                 color: #0a2316;
@@ -234,6 +282,10 @@
                     max-width: 90vw;
                     font-size: 0.94rem;
                 }
+
+                .bubble.assistant .cards-grid {
+                    grid-template-columns: 1fr;
+                }
             }
         </style>
     </head>
@@ -291,6 +343,157 @@
                 thread.scrollTop = thread.scrollHeight;
             };
 
+            const appendAssistantHtml = function (html) {
+                const row = document.createElement("div");
+                row.className = "bubble-row assistant";
+
+                const avatar = document.createElement("span");
+                avatar.className = "avatar";
+                avatar.setAttribute("aria-hidden", "true");
+                avatar.innerHTML = '<img src="assets/assistant.png" alt="" />';
+                row.appendChild(avatar);
+
+                const bubble = document.createElement("div");
+                bubble.className = "bubble assistant";
+                bubble.innerHTML = html;
+
+                row.appendChild(bubble);
+                thread.appendChild(row);
+                thread.scrollTop = thread.scrollHeight;
+            };
+
+            const escapeHtml = function (value) {
+                return String(value)
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#39;");
+            };
+
+            const roundPercentages = function (value) {
+                return String(value).replace(/(-?\d+(?:\.\d+)?)%/g, function (_, numPart) {
+                    const rounded = Math.round(Number(numPart));
+                    return `${rounded}%`;
+                });
+            };
+
+            const createRow = function (label, value, valueClass) {
+                const classAttr = valueClass ? ` ${escapeHtml(valueClass)}` : "";
+                const displayValue = roundPercentages(value);
+                return `<div class="key">${escapeHtml(label)}</div><div class="value${classAttr}">${escapeHtml(displayValue)}</div>`;
+            };
+
+            const formatOutOf = function (score, total, equivalent) {
+                const scoreText = score || "0";
+                const totalText = total || "0";
+                if (!equivalent) {
+                    return `${scoreText} out of ${totalText}`;
+                }
+                return `${scoreText} out of ${totalText} (${equivalent})`;
+            };
+
+            const renderResultCard = function (studentId, cells) {
+                const getValue = function (index) {
+                    return (cells[index - 1] || "").trim();
+                };
+
+                const attendanceRows = [
+                    createRow("Points", formatOutOf(getValue(2), getValue(3))),
+                    createRow("Rating", getValue(4)),
+                ].join("");
+
+                const laboratoryRows = [
+                    createRow("Tuple", getValue(5)),
+                    createRow("Set", getValue(6)),
+                    createRow("Regex", getValue(7)),
+                    createRow("Average", getValue(8)),
+                    createRow("Rating", getValue(9)),
+                ].join("");
+
+                const quizzesRows = [
+                    createRow("Tuple", formatOutOf(getValue(10), getValue(11), getValue(12))),
+                    createRow("Set", formatOutOf(getValue(13), getValue(14), getValue(15))),
+                    createRow("Regex", formatOutOf(getValue(16), getValue(17), getValue(18))),
+                    createRow("Average", getValue(19)),
+                    createRow("Rating", getValue(20)),
+                ].join("");
+
+                const examRows = [
+                    createRow("Score", formatOutOf(getValue(21), getValue(22), getValue(23))),
+                    createRow("Rating", getValue(24)),
+                ].join("");
+
+                const gradeCalculationRows = [
+                    createRow("Raw Midterm", getValue(25)),
+                    createRow("Prelim Bearing", getValue(26)),
+                    createRow("Transmuted Grade", getValue(27), "transmuted-value"),
+                ].join("");
+
+                return `
+                    <p class="result-meta">Student ID: ${escapeHtml(studentId)}</p>
+                    <div class="cards-grid">
+                        <section class="section-card">
+                            <h2>Attendance</h2>
+                            <div class="kv">${attendanceRows}</div>
+                        </section>
+                        <section class="section-card">
+                            <h2>Laboratory</h2>
+                            <div class="kv">${laboratoryRows}</div>
+                        </section>
+                        <section class="section-card">
+                            <h2>Quizzes</h2>
+                            <div class="kv">${quizzesRows}</div>
+                        </section>
+                        <section class="section-card">
+                            <h2>Exam</h2>
+                            <div class="kv">${examRows}</div>
+                        </section>
+                        <section class="section-card grade-card">
+                            <h2>Grade Calculation</h2>
+                            <div class="kv">${gradeCalculationRows}</div>
+                        </section>
+                    </div>
+                `;
+            };
+
+            const lookupAndRespond = function (studentId) {
+                const normalizedStudentId = studentId.toLowerCase();
+                return fetch("midterm_compliance.csv")
+                    .then(function (response) {
+                        if (!response.ok) {
+                            throw new Error("Could not load CSV file.");
+                        }
+                        return response.text();
+                    })
+                    .then(function (csvText) {
+                        const rows = csvText
+                            .split(/\r?\n/)
+                            .map(function (line) {
+                                return line.trim();
+                            })
+                            .filter(Boolean);
+
+                        const matchedRow = rows.find(function (line) {
+                            return line.split(",")[0].trim().toLowerCase() === normalizedStudentId;
+                        });
+
+                        if (!matchedRow) {
+                            appendMessage("assistant", "No record found for this student ID.");
+                            return;
+                        }
+
+                        const cells = matchedRow.split(",");
+                        appendAssistantHtml(renderResultCard(studentId, cells));
+                    })
+                    .catch(function (error) {
+                        appendMessage(
+                            "assistant",
+                            `${error.message} If you're opening this directly as a file, run this using a local web server.`,
+                        );
+                    });
+            };
+
             appendMessage(
                 "assistant",
                 "Hi! I can check your Midterm Compliance record. Please enter your Student ID.",
@@ -313,7 +516,11 @@
                 }, 220);
 
                 setTimeout(function () {
-                    window.location.href = `result.html?id=${encodeURIComponent(studentId)}`;
+                    lookupAndRespond(studentId).finally(function () {
+                        studentIdInput.disabled = false;
+                        sendBtn.disabled = false;
+                        studentIdInput.focus();
+                    });
                 }, 900);
             });
         </script>
