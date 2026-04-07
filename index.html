@@ -492,6 +492,8 @@
                         "Paki-check kung tama ang rehistradong HackerRank username mo. Isang account lang ang dapat gamitin ng bawat student para maiwasan ang recording conflicts.",
                     hackerRankVideoGuide:
                         'Pwede mong panoorin ang unang minuto ng <a href="https://www.youtube.com/watch?v=iorTgl8LQik" target="_blank" rel="noopener noreferrer">video na ito</a> para malaman kung paano i-check ang HackerRank ID mo. Yung nagsisimula sa @ ang kailangan mo.',
+                    hackerRankInstructorConcern:
+                        'Kung may concern ka sa iyong rehistradong HackerRank username, sabihin agad sa <a href="https://www.facebook.com/jerome.loria.261652/" target="_blank" rel="noopener noreferrer">instructor</a>.',
                     loadHackerRankCsvError:
                         "Hindi ma-load ang HackerRank usernames file. Kung diretso mo itong binubuksan bilang file, patakbuhin ito gamit ang local web server.",
                 },
@@ -544,6 +546,8 @@
                         "Please check if your registered HackerRank username is accurate. Only one account should be used per student to avoid recording conflicts.",
                     hackerRankVideoGuide:
                         'You can watch the first minute of <a href="https://www.youtube.com/watch?v=iorTgl8LQik" target="_blank" rel="noopener noreferrer">this video</a> to learn how to check your HackerRank ID. The one that starts with @ is what you need.',
+                    hackerRankInstructorConcern:
+                        'If you have a concern about your registered HackerRank username, approach your <a href="https://www.facebook.com/jerome.loria.261652/" target="_blank" rel="noopener noreferrer">instructor</a> immediately.',
                     loadHackerRankCsvError:
                         "Could not load the HackerRank usernames file. If you're opening this directly as a file, run this using a local web server.",
                 },
@@ -928,6 +932,7 @@
                         appendAssistantHtml(renderHackerRankUsernames(entries));
                         appendMessage("assistant", getText("hackerRankReminder"), "hackerRankReminder");
                         appendAssistantI18nHtml("hackerRankVideoGuide");
+                        appendAssistantI18nHtml("hackerRankInstructorConcern");
                     })
                     .catch(function (error) {
                         if (error.message === "hackerrank_csv_load_error") {
