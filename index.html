@@ -211,6 +211,12 @@
                 font-size: 0.95rem;
             }
 
+            .bubble.assistant a {
+                color: #bfe8ff;
+                font-weight: 700;
+                text-decoration: underline;
+            }
+
             .bubble.assistant .kv {
                 display: grid;
                 grid-template-columns: 1fr auto;
@@ -421,13 +427,13 @@
                         "Hi! Ako si Ada. Maaari kong i-check ang iyong Midterm Compliance record. Pakilagay ang iyong Student ID.",
                     checkingNow: "Tinitingnan ko na ang iyong record...",
                     retakeBothReminder:
-                        "Maaari mo pang i-retake ang quizzes nang hanggang tatlong beses, at ang laboratories nang kahit ilang beses bago ang unang araw ng exams.",
+                        'Maaari mo pang i-retake ang quizzes nang hanggang tatlong beses sa <a href="https://mylearning.thelewiscollege.edu.ph/" target="_blank" rel="noopener noreferrer">LMS</a>, at ang laboratories nang kahit ilang beses bago ang unang araw ng exams sa <a href="https://www.hackerrank.com/tlc-bsit1" target="_blank" rel="noopener noreferrer">HackerRank</a>.',
                     retakeQuizzesReminder:
-                        "Maaari mo pang i-retake ang quizzes nang hanggang tatlong beses.",
+                        'Maaari mo pang i-retake ang quizzes nang hanggang tatlong beses sa <a href="https://mylearning.thelewiscollege.edu.ph/" target="_blank" rel="noopener noreferrer">LMS</a>.',
                     retakeLaboratoriesReminder:
-                        "Maaari mo pang i-retake ang laboratories nang kahit ilang beses bago ang unang araw ng exams.",
+                        'Maaari mo pang i-retake ang laboratories nang kahit ilang beses bago ang unang araw ng exams sa <a href="https://www.hackerrank.com/tlc-bsit1" target="_blank" rel="noopener noreferrer">HackerRank</a>.',
                     compliedReminder:
-                        "Pakisabi agad sa instructor kung nakapag-comply ka na.",
+                        'Pakisabi agad sa <a href="https://www.facebook.com/jerome.loria.261652/" target="_blank" rel="noopener noreferrer">instructor</a> kung nakapag-comply ka na.',
                 },
                 en: {
                     tabTitle: "Ada | Midterm Compliance Portal",
@@ -463,13 +469,13 @@
                         "Hi! I'm Ada. I can check your Midterm Compliance record. Please enter your Student ID.",
                     checkingNow: "Checking your record now...",
                     retakeBothReminder:
-                        "You may still retake quizzes up to three times, and laboratories as many times as you can before the first day of exams.",
+                        'You may still retake quizzes up to three times in the <a href="https://mylearning.thelewiscollege.edu.ph/" target="_blank" rel="noopener noreferrer">LMS</a>, and laboratories as many times as you can before the first day of exams in <a href="https://www.hackerrank.com/tlc-bsit1" target="_blank" rel="noopener noreferrer">HackerRank</a>.',
                     retakeQuizzesReminder:
-                        "You may still retake quizzes up to three times.",
+                        'You may still retake quizzes up to three times in the <a href="https://mylearning.thelewiscollege.edu.ph/" target="_blank" rel="noopener noreferrer">LMS</a>.',
                     retakeLaboratoriesReminder:
-                        "You may still retake laboratories as many times as you can before the first day of exams.",
+                        'You may still retake laboratories as many times as you can before the first day of exams in <a href="https://www.hackerrank.com/tlc-bsit1" target="_blank" rel="noopener noreferrer">HackerRank</a>.',
                     compliedReminder:
-                        "Please tell your instructor right away if you have already complied.",
+                        'Please tell your <a href="https://www.facebook.com/jerome.loria.261652/" target="_blank" rel="noopener noreferrer">instructor</a> right away if you have already complied.',
                 },
             };
 
@@ -500,7 +506,11 @@
                 translatableBubbles.forEach(function (bubble) {
                     const key = bubble.getAttribute("data-i18n-key");
                     if (key) {
-                        bubble.textContent = getText(key);
+                        if (bubble.getAttribute("data-i18n-html") === "true") {
+                            bubble.innerHTML = getText(key);
+                        } else {
+                            bubble.textContent = getText(key);
+                        }
                     }
                 });
             };
@@ -553,6 +563,27 @@
                 const bubble = document.createElement("div");
                 bubble.className = "bubble assistant";
                 bubble.innerHTML = html;
+
+                row.appendChild(bubble);
+                thread.appendChild(row);
+                scrollThreadToBottom();
+            };
+
+            const appendAssistantI18nHtml = function (i18nKey) {
+                const row = document.createElement("div");
+                row.className = "bubble-row assistant";
+
+                const avatar = document.createElement("span");
+                avatar.className = "avatar";
+                avatar.setAttribute("aria-hidden", "true");
+                avatar.innerHTML = '<img src="assets/assistant.png" alt="" />';
+                row.appendChild(avatar);
+
+                const bubble = document.createElement("div");
+                bubble.className = "bubble assistant";
+                bubble.setAttribute("data-i18n-key", i18nKey);
+                bubble.setAttribute("data-i18n-html", "true");
+                bubble.innerHTML = getText(i18nKey);
 
                 row.appendChild(bubble);
                 thread.appendChild(row);
@@ -739,8 +770,8 @@
                         const retakeReminderKey = getRetakeReminderKey(retakeStatus);
 
                         if (retakeReminderKey) {
-                            appendMessage("assistant", getText(retakeReminderKey), retakeReminderKey);
-                            appendMessage("assistant", getText("compliedReminder"), "compliedReminder");
+                            appendAssistantI18nHtml(retakeReminderKey);
+                            appendAssistantI18nHtml("compliedReminder");
                         }
                     })
                     .catch(function (error) {
