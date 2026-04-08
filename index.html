@@ -626,6 +626,26 @@
                         // Skip malformed data payloads to avoid breaking language toggle.
                     }
                 });
+
+                const resultCardBubbles = thread.querySelectorAll(
+                    ".bubble.assistant[data-result-card='true']",
+                );
+
+                resultCardBubbles.forEach(function (bubble) {
+                    const studentId = bubble.getAttribute("data-student-id") || "";
+                    const rawCells = bubble.getAttribute("data-result-cells");
+
+                    if (!studentId || !rawCells) {
+                        return;
+                    }
+
+                    try {
+                        const cells = JSON.parse(rawCells);
+                        bubble.innerHTML = renderResultCard(studentId, cells);
+                    } catch (_error) {
+                        // Skip malformed card payloads to avoid breaking language toggle.
+                    }
+                });
             };
 
             const updateComposerClearance = function () {
@@ -681,6 +701,28 @@
                 const bubble = document.createElement("div");
                 bubble.className = "bubble assistant";
                 bubble.innerHTML = html;
+
+                row.appendChild(bubble);
+                thread.appendChild(row);
+                scrollThreadToBottom();
+            };
+
+            const appendResultCard = function (studentId, cells) {
+                const row = document.createElement("div");
+                row.className = "bubble-row assistant";
+
+                const avatar = document.createElement("span");
+                avatar.className = "avatar";
+                avatar.setAttribute("aria-hidden", "true");
+                avatar.innerHTML = '<img src="assets/assistant.png" alt="" />';
+                row.appendChild(avatar);
+
+                const bubble = document.createElement("div");
+                bubble.className = "bubble assistant";
+                bubble.setAttribute("data-result-card", "true");
+                bubble.setAttribute("data-student-id", studentId);
+                bubble.setAttribute("data-result-cells", JSON.stringify(cells));
+                bubble.innerHTML = renderResultCard(studentId, cells);
 
                 row.appendChild(bubble);
                 thread.appendChild(row);
@@ -968,7 +1010,7 @@
                         }
 
                         const cells = matchedRow.split(",");
-                        appendAssistantHtml(renderResultCard(studentId, cells));
+                        appendResultCard(studentId, cells);
 
                         const noOutputStatus = getNoOutputStatus(cells);
                         const noOutputHtml = formatNoOutputHtml(noOutputStatus);
