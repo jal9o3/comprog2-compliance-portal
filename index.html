@@ -485,6 +485,9 @@
                         'Maaari mo pang i-retake ang laboratories nang kahit ilang beses bago ang unang araw ng exams sa <a href="https://www.hackerrank.com/tlc-bsit1" target="_blank" rel="noopener noreferrer">HackerRank</a>.',
                     compliedReminder:
                         'Pakisabi agad sa <a href="https://www.facebook.com/jerome.loria.261652/" target="_blank" rel="noopener noreferrer">instructor</a> kung nakapag-comply ka na.',
+                    noOutputsLead: "Wala ka pang outputs para sa:",
+                    noOutputsLaboratory: "Laboratories",
+                    noOutputsQuizzes: "Quizzes",
                     missingLabSuggested: "Hindi na-record ang laboratory score ko!",
                     checkingHackerRank: "Tinitingnan ko ang mga rehistradong HackerRank username...",
                     hackerRankListTitle: "Narito ang mga rehistradong HackerRank username:",
@@ -540,6 +543,9 @@
                         'You may still retake laboratories as many times as you can before the first day of exams in <a href="https://www.hackerrank.com/tlc-bsit1" target="_blank" rel="noopener noreferrer">HackerRank</a>.',
                     compliedReminder:
                         'Please tell your <a href="https://www.facebook.com/jerome.loria.261652/" target="_blank" rel="noopener noreferrer">instructor</a> right away if you have already complied.',
+                    noOutputsLead: "You still do not have outputs for:",
+                    noOutputsLaboratory: "Laboratories",
+                    noOutputsQuizzes: "Quizzes",
                     missingLabSuggested: "My laboratory score was not recorded!",
                     checkingHackerRank: "Checking registered HackerRank usernames now...",
                     hackerRankListTitle: "Here are the registered HackerRank usernames:",
@@ -588,6 +594,24 @@
                         } else {
                             bubble.textContent = getText(key);
                         }
+                    }
+                });
+
+                const noOutputBubbles = thread.querySelectorAll(
+                    ".bubble.assistant[data-no-output-status]",
+                );
+
+                noOutputBubbles.forEach(function (bubble) {
+                    const rawStatus = bubble.getAttribute("data-no-output-status");
+                    if (!rawStatus) {
+                        return;
+                    }
+
+                    try {
+                        const status = JSON.parse(rawStatus);
+                        bubble.innerHTML = formatNoOutputHtml(status);
+                    } catch (_error) {
+                        // Skip malformed data payloads to avoid breaking language toggle.
                     }
                 });
             };
@@ -666,6 +690,26 @@
                 bubble.setAttribute("data-i18n-key", i18nKey);
                 bubble.setAttribute("data-i18n-html", "true");
                 bubble.innerHTML = getText(i18nKey);
+
+                row.appendChild(bubble);
+                thread.appendChild(row);
+                scrollThreadToBottom();
+            };
+
+            const appendNoOutputReminder = function (status) {
+                const row = document.createElement("div");
+                row.className = "bubble-row assistant";
+
+                const avatar = document.createElement("span");
+                avatar.className = "avatar";
+                avatar.setAttribute("aria-hidden", "true");
+                avatar.innerHTML = '<img src="assets/assistant.png" alt="" />';
+                row.appendChild(avatar);
+
+                const bubble = document.createElement("div");
+                bubble.className = "bubble assistant";
+                bubble.setAttribute("data-no-output-status", JSON.stringify(status));
+                bubble.innerHTML = formatNoOutputHtml(status);
 
                 row.appendChild(bubble);
                 thread.appendChild(row);
@@ -754,6 +798,66 @@
                 }
 
                 return "";
+            };
+
+            const getNoOutputStatus = function (cells) {
+                const getCellValue = function (index) {
+                    return cells[index - 1] || "";
+                };
+
+                const laboratories = [
+                    { key: "oop", index: 5 },
+                    { key: "linkedList", index: 6 },
+                    { key: "trees", index: 7 },
+                ]
+                    .filter(function (item) {
+                        return parseNumber(getCellValue(item.index)) === 0;
+                    })
+                    .map(function (item) {
+                        return item.key;
+                    });
+
+                const quizzes = [
+                    { key: "oop", index: 10 },
+                    { key: "linkedList", index: 13 },
+                    { key: "trees", index: 16 },
+                    { key: "csvQuiz", index: 19 },
+                ]
+                    .filter(function (item) {
+                        return parseNumber(getCellValue(item.index)) === 0;
+                    })
+                    .map(function (item) {
+                        return item.key;
+                    });
+
+                return {
+                    laboratories,
+                    quizzes,
+                };
+            };
+
+            const formatNoOutputHtml = function (status) {
+                const lines = [escapeHtml(getText("noOutputsLead"))];
+
+                if (status.laboratories.length) {
+                    lines.push(`${escapeHtml(getText("noOutputsLaboratory"))}:`);
+                    status.laboratories.forEach(function (item) {
+                        lines.push(`• ${escapeHtml(getText(item))}`);
+                    });
+                }
+
+                if (status.quizzes.length) {
+                    lines.push(`${escapeHtml(getText("noOutputsQuizzes"))}:`);
+                    status.quizzes.forEach(function (item) {
+                        lines.push(`• ${escapeHtml(getText(item))}`);
+                    });
+                }
+
+                if (lines.length === 1) {
+                    return "";
+                }
+
+                return lines.join("<br>");
             };
 
             const renderResultCard = function (studentId, cells) {
@@ -849,6 +953,13 @@
 
                         const cells = matchedRow.split(",");
                         appendAssistantHtml(renderResultCard(studentId, cells));
+
+                        const noOutputStatus = getNoOutputStatus(cells);
+                        const noOutputHtml = formatNoOutputHtml(noOutputStatus);
+
+                        if (noOutputHtml) {
+                            appendNoOutputReminder(noOutputStatus);
+                        }
 
                         const retakeStatus = getRetakeStatus(cells);
                         const retakeReminderKey = getRetakeReminderKey(retakeStatus);
