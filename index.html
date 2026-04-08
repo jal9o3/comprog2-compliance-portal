@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Ada | Comprog2 Midterm Compliance Portal</title>
+        <title>Ada | Comprog2 Prefinal Compliance Portal</title>
         <style>
             @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap");
 
@@ -397,7 +397,7 @@
 
         <main class="shell">
             <header class="topbar">
-                <h1 id="portal-title" class="title">Midterm Compliance Portal</h1>
+                <h1 id="portal-title" class="title">Prefinal Compliance Portal</h1>
                 <p id="portal-subtitle" class="subtitle">Ada</p>
             </header>
 
@@ -444,8 +444,8 @@
 
             const textByLang = {
                 tl: {
-                    tabTitle: "Ada | Portal ng Midterm Compliance",
-                    title: "Portal ng Midterm Compliance",
+                    tabTitle: "Ada | Portal ng Prefinal Compliance",
+                    title: "Portal ng Prefinal Compliance",
                     subtitle: "Ada",
                     studentIdPlaceholder: "I-type ang iyong Student ID (hal: C-2025-0067)",
                     sendLabel: "Ipadala",
@@ -459,12 +459,13 @@
                     gradeCalculation: "Pagkalkula ng Marka",
                     points: "Points",
                     rating: "Rating",
-                    tuple: "Tuple",
-                    set: "Set",
-                    regex: "Regex",
+                    oop: "OOP",
+                    linkedList: "Linked List",
+                    trees: "Trees",
+                    csvQuiz: "CSV",
                     average: "Average",
                     score: "Score",
-                    rawMidterm: "Raw Midterm",
+                    rawMidterm: "Raw Prefinal",
                     prelimBearing: "Prelim Bearing",
                     transmutedGrade: "Transmuted Grade",
                     noRecord: "Walang rekord na nakita para sa Student ID na ito.",
@@ -474,7 +475,7 @@
                     localServerHint:
                         "Kung diretso mo itong binubuksan bilang file, patakbuhin ito gamit ang local web server.",
                     welcomeMessage:
-                        "Hi! Ako si Ada. Maaari kong i-check ang iyong Midterm Compliance record. Pakilagay ang iyong Student ID.",
+                        "Hi! Ako si Ada. Maaari kong i-check ang iyong Prefinal Compliance record. Pakilagay ang iyong Student ID.",
                     checkingNow: "Tinitingnan ko na ang iyong record...",
                     retakeBothReminder:
                         'Maaari mo pang i-retake ang quizzes nang hanggang tatlong beses sa <a href="https://mylearning.thelewiscollege.edu.ph/" target="_blank" rel="noopener noreferrer">LMS</a>, at ang laboratories nang kahit ilang beses bago ang unang araw ng exams sa <a href="https://www.hackerrank.com/tlc-bsit1" target="_blank" rel="noopener noreferrer">HackerRank</a>.',
@@ -498,8 +499,8 @@
                         "Hindi ma-load ang HackerRank usernames file. Kung diretso mo itong binubuksan bilang file, patakbuhin ito gamit ang local web server.",
                 },
                 en: {
-                    tabTitle: "Ada | Midterm Compliance Portal",
-                    title: "Midterm Compliance Portal",
+                    tabTitle: "Ada | Prefinal Compliance Portal",
+                    title: "Prefinal Compliance Portal",
                     subtitle: "Ada",
                     studentIdPlaceholder: "Type your Student ID (ex: C-2025-0067)",
                     sendLabel: "Send",
@@ -513,12 +514,13 @@
                     gradeCalculation: "Grade Calculation",
                     points: "Points",
                     rating: "Rating",
-                    tuple: "Tuple",
-                    set: "Set",
-                    regex: "Regex",
+                    oop: "OOP",
+                    linkedList: "Linked List",
+                    trees: "Trees",
+                    csvQuiz: "CSV",
                     average: "Average",
                     score: "Score",
-                    rawMidterm: "Raw Midterm",
+                    rawMidterm: "Raw Prefinal",
                     prelimBearing: "Prelim Bearing",
                     transmutedGrade: "Transmuted Grade",
                     noRecord: "No record found for this student ID.",
@@ -528,7 +530,7 @@
                     localServerHint:
                         "If you're opening this directly as a file, run this using a local web server.",
                     welcomeMessage:
-                        "Hi! I'm Ada. I can check your Midterm Compliance record. Please enter your Student ID.",
+                        "Hi! I'm Ada. I can check your Prefinal Compliance record. Please enter your Student ID.",
                     checkingNow: "Checking your record now...",
                     retakeBothReminder:
                         'You may still retake quizzes up to three times in the <a href="https://mylearning.thelewiscollege.edu.ph/" target="_blank" rel="noopener noreferrer">LMS</a>, and laboratories as many times as you can before the first day of exams in <a href="https://www.hackerrank.com/tlc-bsit1" target="_blank" rel="noopener noreferrer">HackerRank</a>.',
@@ -719,6 +721,7 @@
                     [10, 11],
                     [13, 14],
                     [16, 17],
+                    [19, 20],
                 ];
 
                 const hasLaboratoryLessThanPerfect = laboratoryScores.some(function (score) {
@@ -764,30 +767,31 @@
                 ].join("");
 
                 const laboratoryRows = [
-                    createRow(getText("tuple"), getValue(5)),
-                    createRow(getText("set"), getValue(6)),
-                    createRow(getText("regex"), getValue(7)),
+                    createRow(getText("oop"), getValue(5)),
+                    createRow(getText("linkedList"), getValue(6)),
+                    createRow(getText("trees"), getValue(7)),
                     createRow(getText("average"), getValue(8)),
                     createRow(getText("rating"), getValue(9)),
                 ].join("");
 
                 const quizzesRows = [
-                    createRow(getText("tuple"), formatOutOf(getValue(10), getValue(11), getValue(12))),
-                    createRow(getText("set"), formatOutOf(getValue(13), getValue(14), getValue(15))),
-                    createRow(getText("regex"), formatOutOf(getValue(16), getValue(17), getValue(18))),
-                    createRow(getText("average"), getValue(19)),
-                    createRow(getText("rating"), getValue(20)),
+                    createRow(getText("oop"), formatOutOf(getValue(10), getValue(11), getValue(12))),
+                    createRow(getText("linkedList"), formatOutOf(getValue(13), getValue(14), getValue(15))),
+                    createRow(getText("trees"), formatOutOf(getValue(16), getValue(17), getValue(18))),
+                    createRow(getText("csvQuiz"), formatOutOf(getValue(19), getValue(20), getValue(21))),
+                    createRow(getText("average"), getValue(22)),
+                    createRow(getText("rating"), getValue(23)),
                 ].join("");
 
                 const examRows = [
-                    createRow(getText("score"), formatOutOf(getValue(21), getValue(22), getValue(23))),
-                    createRow(getText("rating"), getValue(24)),
+                    createRow(getText("score"), formatOutOf(getValue(24), getValue(25), getValue(26))),
+                    createRow(getText("rating"), getValue(27)),
                 ].join("");
 
                 const gradeCalculationRows = [
-                    createRow(getText("rawMidterm"), getValue(25)),
-                    createRow(getText("prelimBearing"), getValue(26)),
-                    createRow(getText("transmutedGrade"), getValue(27), "transmuted-value"),
+                    createRow(getText("rawMidterm"), getValue(28)),
+                    createRow(getText("prelimBearing"), getValue(29)),
+                    createRow(getText("transmutedGrade"), getValue(30), "transmuted-value"),
                 ].join("");
 
                 return `

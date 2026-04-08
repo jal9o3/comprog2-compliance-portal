@@ -188,7 +188,7 @@
         <b>Reminder:</b> Sabihin agad kay Sir kapag nakapagcomply na sa inyong
         missing requirements. Thank you!
       </p>
-      <h1>Midterm Compliance - Computer Programming 2</h1>
+      <h1>Prefinal Compliance - Computer Programming 2</h1>
       <div id="meta" class="muted"></div>
       <div id="output" class="message">Loading...</div>
     </main>
@@ -279,48 +279,52 @@
             ].join("");
 
             const laboratoryRows = [
-              createRow("Tuple", getValue(5)),
-              createRow("Set", getValue(6)),
-              createRow("Regex", getValue(7)),
+              createRow("OOP", getValue(5)),
+              createRow("Linked List", getValue(6)),
+              createRow("Trees", getValue(7)),
               createRow("Average", getValue(8)),
               createRow("Rating", getValue(9)),
             ].join("");
 
             const quizzesRows = [
               createRow(
-                "Tuple",
+                "OOP",
                 formatOutOf(getValue(10), getValue(11), getValue(12)),
               ),
               createRow(
-                "Set",
+                "Linked List",
                 formatOutOf(getValue(13), getValue(14), getValue(15)),
               ),
               createRow(
-                "Regex",
+                "Trees",
                 formatOutOf(getValue(16), getValue(17), getValue(18)),
               ),
-              createRow("Average", getValue(19)),
-              createRow("Rating", getValue(20)),
+              createRow(
+                "CSV",
+                formatOutOf(getValue(19), getValue(20), getValue(21)),
+              ),
+              createRow("Average", getValue(22)),
+              createRow("Rating", getValue(23)),
             ].join("");
 
             const examRows = [
               createRow(
                 "Score",
-                formatOutOf(getValue(21), getValue(22), getValue(23)),
+                formatOutOf(getValue(24), getValue(25), getValue(26)),
               ),
-              createRow("Rating", getValue(24)),
+              createRow("Rating", getValue(27)),
             ].join("");
 
             const gradeCalculationRows = [
-              createRow("Raw Midterm", getValue(25)),
+              createRow("Raw Prefinal", getValue(28)),
               createRow(
                 "Prelim Bearing",
-                getValue(26),
-                "(70% of Raw Midterm + 30% of Prelim Rating)",
+                getValue(29),
+                "(70% of Raw Prefinal + 30% of Prelim Rating)",
               ),
               createRow(
                 "Transmuted Grade",
-                getValue(27),
+                getValue(30),
                 "",
                 "transmuted-value",
               ),
