@@ -184,7 +184,7 @@
       <a href="index.html">← Back</a>
       <br /><br />
       <p class="disclaimer">
-        <strong>Last updated:</strong> March 23, 2026 08:40 AM<br />
+        <strong>Last updated:</strong> <span id="last-updated"></span><br />
         <b>Reminder:</b> Sabihin agad kay Sir kapag nakapagcomply na sa inyong
         missing requirements. Thank you!
       </p>
@@ -194,11 +194,15 @@
     </main>
 
     <script>
+      const LAST_UPDATED_NOTE = "March 23, 2026 08:40 AM";
       const params = new URLSearchParams(window.location.search);
       const studentId = (params.get("id") || "").trim();
       const normalizedStudentId = studentId.toLowerCase();
+      const lastUpdated = document.getElementById("last-updated");
       const meta = document.getElementById("meta");
       const output = document.getElementById("output");
+
+      lastUpdated.textContent = LAST_UPDATED_NOTE;
 
       if (!studentId) {
         meta.textContent = "No student ID provided.";

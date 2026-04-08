@@ -190,6 +190,12 @@
                 font-size: 0.86rem;
             }
 
+            .bubble.assistant .result-updated {
+                margin: 10px 0 0;
+                color: #d0ddd7;
+                font-size: 0.84rem;
+            }
+
             .bubble.assistant .cards-grid {
                 display: grid;
                 grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -432,6 +438,10 @@
             const thread = document.getElementById("thread");
             const shell = document.querySelector(".shell");
             const composerWrap = document.querySelector(".composer-wrap");
+            const LAST_UPDATED_NOTE_BY_LANG = {
+                tl: "Abril 8, 2026 11:00 AM",
+                en: "April 8, 2026 11:00 AM",
+            };
             const form = document.getElementById("chat-form");
             const studentIdInput = document.getElementById("student-id");
             const sendBtn = document.getElementById("send-btn");
@@ -452,6 +462,7 @@
                     composerHint: "Pindutin ang Enter para ipadala",
                     outOf: "mula sa",
                     studentIdMeta: "Student ID",
+                    lastUpdatedLabel: "Huling update",
                     attendance: "Attendance",
                     laboratory: "Laboratory",
                     quizzes: "Quizzes",
@@ -510,6 +521,7 @@
                     composerHint: "Press Enter to send",
                     outOf: "out of",
                     studentIdMeta: "Student ID",
+                    lastUpdatedLabel: "Last updated",
                     attendance: "Attendance",
                     laboratory: "Laboratory",
                     quizzes: "Quizzes",
@@ -898,6 +910,9 @@
                     createRow(getText("transmutedGrade"), getValue(30), "transmuted-value"),
                 ].join("");
 
+                const lastUpdatedText =
+                    LAST_UPDATED_NOTE_BY_LANG[currentLanguage] || LAST_UPDATED_NOTE_BY_LANG.en || "";
+
                 return `
                     <p class="result-meta">${escapeHtml(getText("studentIdMeta"))}: ${escapeHtml(studentId)}</p>
                     <div class="cards-grid">
@@ -922,6 +937,7 @@
                             <div class="kv">${gradeCalculationRows}</div>
                         </section>
                     </div>
+                    <p class="result-updated"><strong>${escapeHtml(getText("lastUpdatedLabel"))}:</strong> ${escapeHtml(lastUpdatedText)}</p>
                 `;
             };
 
